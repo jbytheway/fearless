@@ -1,0 +1,8 @@
+/config.mk
+.libs
+.makefrags
+.obj
+*.la
+.*.swp
+/*/Makefile
+/*/*/Makefile

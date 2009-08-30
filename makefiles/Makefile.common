@@ -1,0 +1,369 @@
+# This Makefile section is intended to compile a collection of C++ sources and
+# headers, properly keeping track of all header dependencies.  You should
+# define a few variables and then include this file - you need define no
+# targets at all to get compilation working.  If you do define any targets,
+# then you can define them after includeing this file if you wish the default
+# action to be a recursive build.
+#
+# The variables you can define are as follows.  Omit irrelevant ones.
+# SUBDIRS - a list of subdirectories to visit recursively when dealing with the
+#   'all' or 'clean' targets.  Subdirs are built after the current dir.
+# SOURCE_DIRS - a list of directories other than the current one in which to
+# 	look for sources
+# BIN - the name of the binary to compile from all the cpp files (either a .la
+#   library file, or an executable).
+# INCLUDE - include arguments, e.g. "-I.. -Imy-headers".  Include arguments
+#   will also be extrapolated from LIB_DEP_NAMES, so you needn't include those
+#   here.  Indeed, you probably shouldn't ever need to specify this.
+# LIBS - system library arguments, e.g. "-lstdc++".
+# LIB_DEP_NAMES - base names of prerequisite libraries, e.g. "libsakusen" will
+#   be searched for at ../libsakusen/libsakusen.la  and at
+#   ../../libsakusen/libsakusen.la.  This will give appropriate
+#   include arguments, linking arguments, make dependencies and rules for
+#   building (by making in the directory of the library).
+# THIS_CXXFLAGS - other args to gcc at compile stage, e.g. "-Wno-format".
+#   Note that most warnings are on by default, but you can turn them off in
+#   this variable.
+# THIS_LDFLAGS - other args to libtool at link stage, e.g. "-no-install".
+# PREFIX - the installation prefix, e.g. "/usr/local" (to which it defaults).
+#   Expected to be set by the user in the environment, not by the including
+#   Makefile
+# DESTDIR - The prefix where files will be placed, not where they are
+#   configured for. PREFIX is where you eventually want to use the files.
+#   DESTDIR prefixes prefix when the Makefile is decided where to put files.
+#   Probably wants to be "debian/build" or something similar if you are
+#   building a package rather than doing a make install directly. Don't give it
+#   a trailing slash.
+# INSTALL_SUBDIR - A subdirectory of the default install directory into which
+#   to put the compiled binary.  e.g. if PREFIX=/usr/local and
+#   DESTDIR=debian/build and INSTALL_SUBDIR=foo then libraries will be linked
+#   as if to be installed into /usr/local/lib/foo/ and 'make install' will put
+#   the libraries in debian/build/usr/local/lib/foo.
+# NO_AUTO_COMPILING - if set to yes, will entirely disable all the cleverness
+#   in this file to do with C and C++, but does not affect the support for more
+#   general targets like all, clean, etc.
+#
+# If you wish to add your own targets which are built along with everything
+# else, then make them dependencies or rules of all-nonrecursive.  They will
+# be built before any of the C/C++ compilation happens, but after the
+# dependency generation.
+#
+# If you wish to add test harnesses, make them dependencies or rules of
+# test-nonrecursive.  Tests will occur after all-nonrecursive and after all
+# subdirectory tests.
+#
+# If you wish to add more cleaning action, make them rules of clean.
+
+#####################################################
+#
+#  Set up general-purpose variables
+#
+#####################################################
+
+CXX ?= g++
+CC ?= gcc
+LIBTOOL ?= libtool
+
+PREFIX ?= /usr/local
+DESTDIR ?=
+INSTALL_SUBDIR ?=
+
+# We must put a leading slash onto INSTALL_SUBDIR when non-empty
+ifneq ($(INSTALL_SUBDIR),)
+INSTALL_SUBDIR := /$(INSTALL_SUBDIR)
+endif
+
+# Determine whether we're compiling a library or an executable
+
+IS_LIB := $(filter %.la,$(BIN))
+
+# Unless we have been asked not to, we search for source files
+ifeq ($(NO_AUTO_COMPILING),yes)
+CXX_SOURCES :=
+C_SOURCES :=
+else
+CXX_SOURCES := $(filter-out $(foreach exc,$(EXCLUDE_FILES),$(this_srcdir)$(exc)),\
+	$(wildcard $(this_srcdir)*.cpp) \
+	$(foreach dir,$(SOURCE_DIRS),$(wildcard $(this_srcdir)$(dir)/*.cpp)))
+C_SOURCES := $(filter-out $(foreach exc,$(EXCLUDE_FILES),$(this_srcdir)$(exc)),\
+	$(wildcard $(this_srcdir)*.c) \
+	$(foreach dir,$(SOURCE_DIRS),$(wildcard $(this_srcdir)$(dir)/*.c)))
+endif
+
+# Note that though the *_SOURCES variables point at the source directory tree,
+# the *_BASES variables have $(this_srcdir) stripped off the front, and are
+# thus local.
+CXX_BASES := $(patsubst $(this_srcdir)%,%,$(basename $(CXX_SOURCES)))
+C_BASES := $(patsubst $(this_srcdir)%,%,$(basename $(C_SOURCES)))
+# When generating the object an makefrag file names, we need to be sure to
+# remove '..' from the path in order to prevent random directories being
+# created anywhere and everywhere
+CXX_OBJS := $(foreach base,$(CXX_BASES),.obj/$(subst ..,_dot_dot,$(base)).o)
+C_OBJS := $(foreach base,$(C_BASES),.obj/$(subst ..,_dot_dot,$(base)).o)
+LIBTOOL_OBJS := $(foreach obj,$(CXX_OBJS) $(C_OBJS),$(basename $(obj)).lo)
+MAKEFRAGS := \
+	$(foreach source,$(patsubst $(this_srcdir)%,%,$(CXX_SOURCES) $(C_SOURCES)),\
+		.makefrags/$(subst ..,_dot_dot,$(source)).makefrag\
+	)
+
+# Add warnings and debugging, and turn off optimizations.  To get optimizations
+# and such things, they should be added to BUILD_CXXFLAGS in a config.mk or to
+# THIS_CXXFLAGS in a Makefile.local (depending on whether they are supposed to
+# apply to a build or a binary respectively).
+GLOBAL_CXXFLAGS ?= -Werror -Wall -Wextra -Woverloaded-virtual -Wundef -Wpointer-arith -Wwrite-strings -O0 -g3
+GLOBAL_CFLAGS ?= -Werror -O0 -g3
+GLOBAL_CPPFLAGS ?= -std=gnu++0x -DPHOENIX_LIMIT=6
+
+# We replace '-' with '/' in the library name when using it as a directory
+# because e.g. libsakusen-comms is in libsakusen/comms
+
+LIB_DEP := $(foreach lib,$(LIB_DEP_NAMES), \
+		$(top_builddir)$(subst -,/,$(lib))/lib$(lib).la \
+	)
+
+# Concatenate all the CXXFLAGSs and CFLAGSs together
+
+ALL_CXXFLAGS := \
+	$(CXXFLAGS) $(GLOBAL_CXXFLAGS) $(BUILD_CXXFLAGS) $(THIS_CXXFLAGS)
+ALL_CFLAGS := \
+	$(CFLAGS) $(GLOBAL_CFLAGS) $(BUILD_CFLAGS) $(THIS_CFLAGS)
+ALL_CPPFLAGS := $(GLOBAL_CPPFLAGS) $(BUILD_CPPFLAGS) $(THIS_CPPFLAGS) \
+	-I$(this_srcdir) -I. -I$(top_srcdir)
+
+
+GAMESDIR := $(DESTDIR)$(PREFIX)/games
+BINDIR := $(DESTDIR)$(PREFIX)/bin
+LIBDIR := $(DESTDIR)$(PREFIX)/lib
+PLUGINDIR := $(LIBDIR)/sakusen
+MANDIR := $(DESTDIR)$(PREFIX)/man
+DATADIR := $(DESTDIR)$(PREFIX)/share/games/sakusen
+INCLUDEDIR := $(DESTDIR)$(PREFIX)/include/sakusen
+
+#####################################################
+#
+#  Subdirectory Makefiles
+#
+#####################################################
+
+ifneq (,$(SUBDIRS))
+# We also need to be able to dynamically create the subdirectories and their
+# Makefiles
+SUBDIR_MAKEFILES := $(addsuffix /Makefile,$(SUBDIRS))
+
+$(SUBDIR_MAKEFILES): %/Makefile: $(top_srcdir)makefiles/Makefile.common
+	@echo 'Creating $@...'
+	@mkdir -p $(dir $@)
+	@echo '# This file is autogenerated.  Do not edit it' > $@
+	@DOTS="`echo "$*" | sed -r 's![^/]+!..!g'`" && \
+	echo "top_srcdir = $${DOTS}"/'$(top_srcdir)' >> $@ && \
+	echo "top_builddir = $${DOTS}"/'$(top_builddir)' >> $@ && \
+	echo "this_srcdir = $${DOTS}"/'$(this_srcdir)$*/' >> $@ && \
+	echo "this_srcdir = $${DOTS}"/'$(this_srcdir)$*/' >> $@
+	@echo >> $@
+	@echo 'all:' >> $@
+	@echo >> $@
+	@echo 'include $$(top_builddir)config.mk' >> $@
+	@echo 'ifneq (,$$(wildcard Makefile.local))' >> $@
+	@echo '  this_makefile := Makefile.local' >> $@
+	@echo 'else' >> $@
+	@echo '  this_makefile := $$(this_srcdir)Makefile.local' >> $@
+	@echo 'endif' >> $@
+	@echo 'include $$(this_makefile)' >> $@
+	@echo 'include $$(top_srcdir)makefiles/Makefile.common' >> $@
+
+remove-empty-subdirs:
+	-rm -f $(SUBDIR_MAKEFILES)
+	-rmdir --ignore-fail-on-non-empty $(SUBDIRS)
+
+endif
+
+#####################################################
+#
+#  Top-level targets (all, test, clean)
+#
+#####################################################
+
+# Phony targets to make all in each subdirectory
+ALL_RECURSIONS := $(addprefix all-recurse-,$(SUBDIRS))
+$(ALL_RECURSIONS): all-recurse-%: %/Makefile all-nonrecursive
+	@$(MAKE) -C $* all
+
+# Default target is to build the binary (and recurse)
+# the 'true' is supposed to stop the 'Nothing to be done for all' messages
+all: all-nonrecursive $(ALL_RECURSIONS) all-post-recurse
+	@true
+
+all-nonrecursive: $(BIN)
+
+# Same stuff for test
+TEST_RECURSIONS := $(addprefix test-recurse-,$(SUBDIRS))
+$(TEST_RECURSIONS): test-recurse-%: %/Makefile all-nonrecursive
+	@$(MAKE) -C $* test
+
+# Tests are performed "on the way down" the recursion
+test: all-nonrecursive $(TEST_RECURSIONS) test-nonrecursive
+
+# Makefile.locals should add tests to this target
+test-nonrecursive: all-nonrecursive
+
+# Same stuff for clean
+CLEAN_RECURSIONS := $(addprefix clean-recurse-,$(SUBDIRS))
+$(CLEAN_RECURSIONS): clean-recurse-%: %/Makefile
+	@$(MAKE) -C $* clean
+
+# Default target is to build the binary (and recurse)
+clean: $(CLEAN_RECURSIONS) clean-nonrecursive
+
+clean-nonrecursive: remove-empty-subdirs
+	-rm -rf .libs .obj .makefrags
+	-rm -f $(BIN) revision.h
+
+# Same stuff for install
+INSTALL_RECURSIONS := $(addprefix install-recurse-,$(SUBDIRS))
+$(INSTALL_RECURSIONS): install-recurse-%: %/Makefile all-nonrecursive
+	@$(MAKE) -C $* install
+
+install: install-nonrecursive $(INSTALL_RECURSIONS)
+
+#####################################################
+#
+#  Compilation and linking and installing
+#
+#####################################################
+
+# The compile/link commands depend of whether we're building a library or an
+# executable
+
+ifneq ($(BIN),)
+ifneq ($(IS_LIB),)
+# When it is a library:
+
+# Build the binary
+
+$(BIN): $(CXX_OBJS) $(C_OBJS) $(LIB_DEP) $(this_makefile)
+	$(LIBTOOL) --mode=link --tag=CXX $(CXX) -g3 $(BUILD_LDFLAGS) $(THIS_LDFLAGS) \
+		-rpath $(PREFIX)/lib$(INSTALL_SUBDIR) \
+		-o $@ $(LIBS) $(LIBTOOL_OBJS) $(LIB_DEP)
+
+# Libtool objects are made when normal objects are
+
+$(LIBTOOL_OBJS): %.lo: %.o
+
+# The actual compile commands (source dependencies will come from the makefrag
+# file).
+
+$(CXX_OBJS): .obj/%.o:
+	@mkdir -p $(dir $@)
+	$(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) -c \
+		-o $@ $(this_srcdir)$(subst _dot_dot,..,$*).cpp
+
+$(C_OBJS): .obj/%.o:
+	@mkdir -p $(dir $@)
+	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS) -c \
+		-o $@ $(this_srcdir)$(subst _dot_dot,..,$*).c
+
+# install the lib
+install-nonrecursive: $(BIN)
+	install -d $(LIBDIR)$(INSTALL_SUBDIR)
+	$(LIBTOOL) --mode=install install -m 644 $< $(LIBDIR)$(INSTALL_SUBDIR)/$(notdir $<)
+
+else
+# When it is an executable
+
+# Build the binary
+
+$(BIN): $(CXX_OBJS) $(C_OBJS) $(LIB_DEP) $(this_makefile)
+	$(LIBTOOL) --mode=link --tag=CXX $(CXX) -g3 $(BUILD_LDFLAGS) $(THIS_LDFLAGS) \
+		-o $@ $(LIBS) $(CXX_OBJS) $(C_OBJS) $(LIB_DEP)
+
+# The actual compile commands (source dependencies will come from the makefrag
+# file).  Unlike the above, we *don't* use libtool, so as to speed up the
+# compile
+
+$(CXX_OBJS): .obj/%.o:
+	@mkdir -p $(dir $@)
+	$(CXX) $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) -c \
+		-o $@ $(this_srcdir)$(subst _dot_dot,..,$*).cpp
+
+$(C_OBJS): .obj/%.o:
+	@mkdir -p $(dir $@)
+	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS) -c \
+		-o $@ $(this_srcdir)$(subst _dot_dot,..,$*).c
+
+# install the binary unless it was linked with -no-install
+ifeq (,$(filter -no-install,$(THIS_LDFLAGS)))
+install-nonrecursive: $(BIN)
+	install -d $(GAMESDIR)$(INSTALL_SUBDIR)
+	$(LIBTOOL) --mode=install install -m 755 $< $(GAMESDIR)$(INSTALL_SUBDIR)/$(notdir $<)
+endif
+
+endif
+else # $(BIN) is empty
+install-nonrecursive:
+
+endif # $(BIN) non-empty
+#####################################################
+#
+#  Dependency generation
+#
+#####################################################
+
+ifneq ($(MAKEFRAGS),)
+# Don't include them if we're cleaning
+ifneq ($(MAKECMDGOALS),clean)
+include $(MAKEFRAGS)
+
+# We make revision.h a dependency of the last included Makefile to ensure that
+# it's generated before any of the other makefrags.  It has to be the last
+# included because make remakes included makefiles in reverse order.
+
+#$(lastword $(MAKEFRAGS)): revision.h
+
+endif
+endif
+
+$(MAKEFRAGS): .makefrags/%.makefrag:
+	@mkdir -p $(dir $@)
+	cpp $(ALL_CPPFLAGS) -MT .obj/$(basename $*).o -MT $@ \
+		-MP -M -MF $@  $(this_srcdir)$(subst _dot_dot,..,$*)
+	printf "\n%s:\n" "$(this_srcdir)$(subst _dot_dot,..,$*)" >> $@
+
+#####################################################
+#
+#  Misc
+#
+#####################################################
+
+# If we're in a working copy then we can make a revision.h containing the
+# current revision number if so desired (this should be automatically
+# generated iff it's included from anywhere).
+
+# Wildcarding these deps makes the file be regenerated after an update but
+# doesn't break make when they don't exist.
+revision.h: $(wildcard $(top_srcdir).svn/entries) $(wildcard $(top_srcdir).git/index)
+	@if test -f $(top_srcdir).svn/entries ; \
+	then \
+		REVISION=`svn info -R $(top_srcdir) | grep "^Revision:" | \
+			awk '{print $$2}' | sort -nr | head -n 1`; \
+	elif test -d $(top_srcdir).git ; \
+	then \
+		REVISION=`git-rev-list --max-count=1 HEAD`; \
+	else \
+		REVISION='unknown' ; \
+	fi; \
+	if test "x$$REVISION" != "x"; \
+	then \
+		echo "#define REVISION \"$$REVISION\"" > $@; \
+	else \
+		echo '' > $@; \
+	fi;
+
+.PHONY: \
+		all all-nonrecursive all-post-recurse $(ALL_RECURSIONS) \
+		test test-nonrecursive $(TEST_RECURSIONS) \
+		clean clean-nonrecursive remove-empty-subdirs $(CLEAN_RESURSIONS) \
+		install install-nonrecursive $(CLEAN_RECURSIONS) \
+		$(BUILTIN_CONFIGS)
+
+.DELETE_ON_ERROR:
+
