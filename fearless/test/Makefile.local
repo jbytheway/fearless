@@ -1,6 +1,0 @@
-BIN = fearless-test
-LIBS = -lboost_unit_test_framework
-
-test: $(BIN)
-	./$<
-

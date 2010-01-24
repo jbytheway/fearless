@@ -1,0 +1,7 @@
+BIN = fearless-physics-test
+LIB_DEP_NAMES = fearless-physics
+LIBS = -lboost_unit_test_framework
+
+test: $(BIN)
+	./$<
+
