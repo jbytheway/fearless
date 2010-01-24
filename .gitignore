@@ -1,4 +1,5 @@
 /config.mk
+/user.mk
 .libs
 .makefrags
 .obj
