@@ -1,0 +1,3 @@
+SUBDIRS = test
+BIN = libfearless-maths.la
+

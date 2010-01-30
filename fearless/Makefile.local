@@ -1,2 +1,2 @@
-SUBDIRS = physics
+SUBDIRS = maths physics
 
