@@ -1,3 +1,4 @@
 SUBDIRS = test
 BIN = libfearless-maths.la
+LIB_DEP_NAMES := fearless
 

@@ -30,31 +30,56 @@ namespace fearless { namespace physics {
 template<typename Reality, typename T>
 class LorentzTransform {
   public:
-    typedef maths::SpecialLinearMatrix<std::complex<T>, 2> Representation;
+    typedef maths::SpecialLinearMatrix<maths::Complex<T>> Representation;
 
-    /** Creates a LorentzTransform into the frame of an object moving with
-     * given velocity */
     static LorentzTransform boost(Velocity<T> const&);
 
+    static LorentzTransform rotation(maths::SpecialOrthogonalMatrix<T> const&);
+
     Event<Reality, T> apply(Event<Reality, T> const&) const;
+
+    friend inline LorentzTransform
+    operator*(LorentzTransform const& l, LorentzTransform const& r) {
+      return LorentzTransform(l.representation_ * r.representation_);
+    }
   private:
+    explicit LorentzTransform(Representation r) :
+      representation_(std::move(r))
+    {}
+
     Representation representation_;
 };
 
+/** \brief Creates a LorentzTransform into the frame of an object moving
+ * with given velocity */
 template<typename Reality, typename T>
 LorentzTransform<Reality, T>
 LorentzTransform<Reality, T>::boost(Velocity<T> const& v)
 {
   units::quantity<units::velocity, T> const v_norm = v.norm();
-  ThreeVector<units::dimensionless, T> const n = v / v_norm;
-  ThreeVector<units::dimensionless, T> const pole(0, 0, 1);
+  ThreeVector<units::quantity<units::dimensionless, T>> const n = v / v_norm;
+  ThreeVector<units::quantity<units::dimensionless, T>> const pole(0, 0, 1);
   auto const rotate_n_to_pole =
     maths::SpecialOrthogonalMatrix<T>::rotation_from_to(n, pole);
-  T const scale =
-    sqrt(maths::careful_functions::one_plus_x_over_one_minus_x(v/Reality::c));
+  T const beta = v_norm/Reality::c.quantity();
+  T const scale = sqrt((1+beta) / (1-beta));
   auto const boost_at_pole = Representation::scale_by(scale);
   return rotation(rotate_n_to_pole) * LorentzTransform(boost_at_pole) *
     rotation(rotate_n_to_pole.inverse());
+}
+
+/** \brief Creates a LorentzTranform corresponding to the given rotation of
+ * space */
+template<typename Reality, typename T>
+LorentzTransform<Reality, T>
+LorentzTransform<Reality, T>::rotation(
+    maths::SpecialOrthogonalMatrix<T> const& r
+  )
+{
+  boost::math::quaternion<T> q = r.as_quaternion();
+  maths::Complex<T> const z1 = q.C_component_1();
+  maths::Complex<T> const z2 = q.C_component_2();
+  return LorentzTransform(Representation(z1, z2, -z1.conj(), z2.conj()));
 }
 
 template<typename Reality, typename T>
@@ -65,7 +90,7 @@ LorentzTransform<Reality, T>::apply(Event<Reality, T> const& x) const
     EventAsMatrix;
   EventAsMatrix const x_as_matrix{
       x.t() + x.z(),
-      std::complex<units::quantity<units::length, T>>{x.x(), -x.y()},
+      maths::Complex<units::quantity<units::length, T>>{x.x(), -x.y()},
       x.t() - x.z()
     };
   EventAsMatrix const result_as_matrix = x_as_matrix.conjugate(representation_);
@@ -75,7 +100,7 @@ LorentzTransform<Reality, T>::apply(Event<Reality, T> const& x) const
   T const two{2};
   Event<Reality, T> result{
     (m00+m11)/two,
-    Displacement<T>{real(m01), -imag(m01), (m00-m11)/two}
+    Displacement<T>{m01.real(), -m01.imag(), (m00-m11)/two}
   };
   return result;
 }

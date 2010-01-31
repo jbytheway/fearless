@@ -7,12 +7,12 @@
 namespace fearless { namespace physics {
 
 template<typename T>
-class Velocity : public ThreeVector<units::velocity, T> {
+class Velocity : public ThreeVector<units::quantity<units::velocity, T>> {
   public:
-    typedef ThreeVector<units::velocity, T> base_type;
-    typedef typename base_type::quantity_type quantity_type;
+    typedef ThreeVector<units::quantity<units::velocity, T>> base_type;
+    typedef typename base_type::quantity quantity;
 
-    Velocity(quantity_type x, quantity_type y, quantity_type z) :
+    Velocity(quantity x, quantity y, quantity z) :
       base_type(std::move(x), std::move(y), std::move(z))
     {}
 };

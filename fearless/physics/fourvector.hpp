@@ -2,58 +2,42 @@
 #define FEARLESS_PHYSICS__FOURVECTOR_HPP
 
 #include <boost/mpl/times.hpp>
-#include <boost/units/is_unit.hpp>
 
 #include <fearless/physics/threevector.hpp>
 
 namespace fearless { namespace physics {
 
-template<typename Unit, typename T>
+template<typename Quantity>
 class FourVector {
-  BOOST_MPL_ASSERT((boost::units::is_unit<Unit>));
+  BOOST_MPL_ASSERT((boost::units::is_quantity<Quantity>));
   public:
-    typedef units::quantity<Unit, T> quantity_type;
-    typedef ThreeVector<Unit, T> three_vector;
+    typedef Quantity quantity;
+    typedef ThreeVector<quantity> three_vector;
 
-    FourVector(quantity_type t, three_vector s) :
+    FourVector(quantity t, three_vector s) :
       temporal_{std::move(t)},
       spatial_{std::move(s)}
     {}
 
-    quantity_type const& temporal() const { return temporal_; }
-    quantity_type const& t() const { return temporal_; }
+    quantity const& temporal() const { return temporal_; }
+    quantity const& t() const { return temporal_; }
     three_vector const& spatial() const { return spatial_; }
-    quantity_type const& x() const { return spatial_.x(); }
-    quantity_type const& y() const { return spatial_.x(); }
-    quantity_type const& z() const { return spatial_.x(); }
+    quantity const& x() const { return spatial_.x(); }
+    quantity const& y() const { return spatial_.x(); }
+    quantity const& z() const { return spatial_.x(); }
   private:
-    quantity_type temporal_;
-    ThreeVector<Unit, T> spatial_;
+    quantity temporal_;
+    ThreeVector<Quantity> spatial_;
 };
 
 /** Multiply a 4-vector by a scalar */
-template<
-  typename System, typename Dimension1, typename T1,
-  typename Dimension2, typename T2
->
-inline FourVector<
-    boost::units::unit<
-      typename boost::mpl::times<Dimension1, Dimension2>::type, System
-    >,
-    decltype(T1(0)*T2(0))
-  >
-operator*(
-    FourVector<boost::units::unit<Dimension1, System>, T1> const& v,
-    units::quantity<boost::units::unit<Dimension2, System>, T2> const& s
-  ) {
-  return FourVector<
-      boost::units::unit<
-        typename boost::mpl::times<Dimension1, Dimension2>::type, System
-      >,
-      decltype(T1(0)*T2(0))
-    >{
-      v.temporal() * s, v.spatial() * s
-    };
+template<typename Q1, typename Q2>
+inline FourVector<typename boost::units::multiply_typeof_helper<Q1, Q2>::type>
+operator*(FourVector<Q1> const& v, Q2 const& s) {
+  typedef
+    FourVector<typename boost::units::multiply_typeof_helper<Q1, Q2>::type>
+    type;
+  return type{v.temporal() * s, v.spatial() * s};
 }
 
 }}

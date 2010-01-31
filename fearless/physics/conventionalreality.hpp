@@ -14,6 +14,9 @@ class ConventionalReality {
       operator units::quantity<units::velocity, double>() const {
         return boost::units::si::constants::codata::c;
       }
+      units::quantity<units::velocity, double> quantity() const {
+        return boost::units::si::constants::codata::c;
+      }
     };
     static c_t const c;
 };
