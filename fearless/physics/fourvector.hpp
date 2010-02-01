@@ -13,9 +13,13 @@ class FourVector {
   public:
     typedef Quantity quantity;
     typedef ThreeVector<quantity> three_vector;
+    typedef typename quantity::value_type value_type;
     typedef typename
       boost::units::multiply_typeof_helper<quantity, quantity>::type
       quantity_squared;
+    typedef typename boost::units::divide_typeof_helper<
+      quantity, units::quantity<units::velocity, value_type>
+    >::type quantity_over_velocity;
 
     FourVector(quantity t, three_vector s) :
       temporal_{std::move(t)},
@@ -24,6 +28,10 @@ class FourVector {
 
     quantity const& temporal() const { return temporal_; }
     quantity const& t() const { return temporal_; }
+    template<typename Reality>
+    quantity_over_velocity t_over_c() const {
+      return temporal_/Reality::c.quantity();
+    }
     three_vector const& spatial() const { return spatial_; }
     quantity const& x() const { return spatial_.x(); }
     quantity const& y() const { return spatial_.y(); }
@@ -33,6 +41,11 @@ class FourVector {
       return temporal()*temporal()+spatial().norm_squared();
     }
     quantity l2_norm() const { return sqrt(l2_norm_squared()); }
+
+    friend inline bool
+    operator==(FourVector const& l, FourVector const& r) {
+      return l.temporal_ == r.temporal_ && l.spatial_ == r.spatial_;
+    }
 
     friend std::ostream&
     operator<<(std::ostream& o, FourVector const& v) {
@@ -59,6 +72,13 @@ operator*(FourVector<Q1> const& v, Q2 const& s) {
     FourVector<typename boost::units::multiply_typeof_helper<Q1, Q2>::type>
     type;
   return type{v.temporal() * s, v.spatial() * s};
+}
+
+/** Add a 4-vector to a 4-vector */
+template<typename Q1>
+inline FourVector<Q1>
+operator+(FourVector<Q1> const& l, FourVector<Q1> const& r) {
+  return FourVector<Q1>{l.t() + r.t(), l.spatial() + r.spatial()};
 }
 
 /** Subtract a 4-vector from a 4-vector */

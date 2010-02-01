@@ -37,9 +37,11 @@ class LorentzTransform {
 
     static LorentzTransform rotation(maths::SpecialOrthogonalMatrix<T> const&);
 
+    LorentzTransform inverse() const;
+
     Event<Reality, T> apply(Event<Reality, T> const&, bool debug=false) const;
 
-    void dump(std::ostream&);
+    void dump(std::ostream&) const;
 
     friend inline LorentzTransform
     operator*(LorentzTransform const& l, LorentzTransform const& r) {
@@ -60,12 +62,13 @@ LorentzTransform<Reality, T>
 LorentzTransform<Reality, T>::boost(Velocity<T> const& v)
 {
   units::quantity<units::velocity, T> const v_norm = v.norm();
+  assert(v_norm < Reality::c.quantity());
   ThreeVector<units::quantity<units::dimensionless, T>> const n = v / v_norm;
   ThreeVector<units::quantity<units::dimensionless, T>> const pole(0, 0, 1);
   auto const rotate_n_to_pole =
     maths::SpecialOrthogonalMatrix<T>::rotation_from_to(n, pole);
   T const beta = v_norm/Reality::c.quantity();
-  T const scale = sqrt((1+beta) / (1-beta));
+  T const scale = sqrt((1-beta) / (1+beta));
   auto const boost_at_pole = Representation::scale_by(scale);
   return rotation(rotate_n_to_pole) * LorentzTransform(boost_at_pole) *
     rotation(rotate_n_to_pole.inverse());
@@ -82,7 +85,14 @@ LorentzTransform<Reality, T>::rotation(
   boost::math::quaternion<T> q = r.as_quaternion();
   maths::Complex<T> const z1(q.R_component_1(), q.R_component_4());
   maths::Complex<T> const z2(q.R_component_3(), q.R_component_2());
-  return LorentzTransform(Representation(z1.conj(), -z2.conj(), z2, z1));
+  return LorentzTransform(Representation(z1.conj(), -z2, z2.conj(), z1));
+}
+
+template<typename Reality, typename T>
+LorentzTransform<Reality, T>
+LorentzTransform<Reality, T>::inverse() const
+{
+  return LorentzTransform(representation_.inverse());
 }
 
 template<typename Reality, typename T>
@@ -120,7 +130,7 @@ LorentzTransform<Reality, T>::apply(
 }
 
 template<typename Reality, typename T>
-void LorentzTransform<Reality, T>::dump(std::ostream& o)
+void LorentzTransform<Reality, T>::dump(std::ostream& o) const
 {
   o << representation_;
 }

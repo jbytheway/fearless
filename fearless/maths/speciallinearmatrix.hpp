@@ -58,6 +58,12 @@ SpecialLinearMatrix<T> SpecialLinearMatrix<T>::scale_by(T const scale)
   return SpecialLinearMatrix(sqrt_scale, 0, 0, 1.0/sqrt_scale);
 }
 
+template<typename T>
+SpecialLinearMatrix<T> SpecialLinearMatrix<T>::inverse() const
+{
+  return SpecialLinearMatrix(d(), -b(), -c(), a());
+}
+
 }}
 
 #endif // FEARLESS_MATHS__SPECIALLINEARMATRIX_HPP 

@@ -99,10 +99,10 @@ HermitianMatrix<T, Dim> HermitianMatrix<T, Dim>::conjugate(
   value_type const d_norm = d.norm_squared();
 
   // Output is M, with
-  // M_{0,0} = aa'x + bb'y + 2Re(a'bz)
-  T const m00 = a_norm*x + b_norm*y + (a.conj()*b*z).real()*value_type(2);
-  // M_{1,1} = cc'x + dd'y + 2Re(c'dz)
-  T const m11 = c_norm*x + d_norm*y + (c.conj()*d*z).real()*value_type(2);
+  // M_{0,0} = aa'x + bb'y + 2Re(ab'z)
+  T const m00 = a_norm*x + b_norm*y + (a*b.conj()*z).real()*value_type(2);
+  // M_{1,1} = cc'x + dd'y + 2Re(cd'z)
+  T const m11 = c_norm*x + d_norm*y + (c*d.conj()*z).real()*value_type(2);
   // M_{0,1} = ac'x + bd'y + bc'z' + ad'z
   Complex<T> const m01 =
     a*c.conj()*x + b*d.conj()*y + b*c.conj()*z.conj() + a*d.conj()*z;

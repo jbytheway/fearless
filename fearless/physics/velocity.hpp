@@ -12,6 +12,7 @@ class Velocity : public ThreeVector<units::quantity<units::velocity, T>> {
     typedef ThreeVector<units::quantity<units::velocity, T>> base_type;
     typedef typename base_type::quantity quantity;
 
+    Velocity(base_type const& v) : base_type(v) {}
     Velocity(quantity x, quantity y, quantity z) :
       base_type(std::move(x), std::move(y), std::move(z))
     {}
