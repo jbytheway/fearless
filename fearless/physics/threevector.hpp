@@ -59,6 +59,30 @@ class ThreeVector {
     std::tuple<quantity, quantity, quantity> values_;
 };
 
+/** Multiply a 3-vector by a unit */
+template<typename Q1, typename Dim, typename System>
+inline ThreeVector<
+  typename boost::units::multiply_typeof_helper<
+    Q1,
+    units::quantity<
+      boost::units::unit<Dim, System>,
+      typename Q1::value_type
+    >
+  >::type
+>
+operator*(ThreeVector<Q1> const& v, boost::units::unit<Dim, System> const& u) {
+  typedef ThreeVector<
+    typename boost::units::multiply_typeof_helper<
+      Q1,
+      units::quantity<
+        boost::units::unit<Dim, System>,
+        typename Q1::value_type
+      >
+    >::type
+  > type;
+  return type{v.x() * u, v.y() * u, v.z() * u};
+}
+
 /** Negate a 3-vector */
 template<typename Q1>
 inline ThreeVector<Q1>
@@ -121,6 +145,7 @@ dot_product(ThreeVector<Q1> const& l, ThreeVector<Q2> const& r) {
   return l.x()*r.x() + l.y()*r.y() + l.z()*r.z();
 }
 
+/** ADL-found overload of very_near_to */
 template<typename Q>
 bool very_near_to(
     ThreeVector<Q> const& x,

@@ -8,6 +8,8 @@ namespace fearless { namespace maths {
 template<typename T, std::uint32_t Dim>
 class HermitianMatrix {
   public:
+    static std::uint32_t const num_rows = Dim;
+    static std::uint32_t const num_cols = Dim;
     typedef typename T::value_type value_type;
 
     /** Constructor for Dim==2 */
@@ -65,7 +67,7 @@ inline Complex<T> matrix_element(
     typename std::enable_if<(Row>Col), int>::type = 0
   ) {
   BOOST_MPL_ASSERT_RELATION(Row,<,Dim);
-  return conj(m.upper_element(Col, Row));
+  return m.upper_triangle(Col, Row).conj();
 }
 
 template<typename T, std::uint32_t Dim>
@@ -101,9 +103,9 @@ HermitianMatrix<T, Dim> HermitianMatrix<T, Dim>::conjugate(
   T const m00 = a_norm*x + b_norm*y + (a.conj()*b*z).real()*value_type(2);
   // M_{1,1} = cc'x + dd'y + 2Re(c'dz)
   T const m11 = c_norm*x + d_norm*y + (c.conj()*d*z).real()*value_type(2);
-  // M_{0,1} = ac'x + bd'y + bc'z + ad'z'
+  // M_{0,1} = ac'x + bd'y + bc'z' + ad'z
   Complex<T> const m01 =
-    a*c.conj()*x + b*d.conj()*y + b*c.conj()*z + a*d.conj()*z.conj();
+    a*c.conj()*x + b*d.conj()*y + b*c.conj()*z.conj() + a*d.conj()*z;
 
   return HermitianMatrix(m00, m01, m11);
 }

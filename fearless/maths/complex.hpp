@@ -103,6 +103,30 @@ class Complex
 };
 
 template<class X>
+bool operator==(const Complex<X>& x, const X& y)
+{
+  return x.real()==y && x.imag()==0.0;
+}
+
+template<class X>
+bool operator==(const Complex<X>& x, const Complex<X>& y)
+{
+  return x.real()==y.real() && x.imag()==y.imag();
+}
+
+template<class X>
+bool operator!=(const Complex<X>& x, const X& y)
+{
+  return !(x==y);
+}
+
+template<class X>
+bool operator!=(const Complex<X>& x, const Complex<X>& y)
+{
+  return !(x==y);
+}
+
+template<class X>
 Complex<typename boost::units::unary_plus_typeof_helper<X>::type>
 operator+(const Complex<X>& x)
 {

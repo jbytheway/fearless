@@ -7,6 +7,7 @@
 #include <fearless/maths/specialorthogonalmatrix.hpp>
 #include <fearless/maths/hermitianmatrix.hpp>
 #include <fearless/maths/matrix_element.hpp>
+#include <fearless/maths/dump_matrix.hpp>
 #include <fearless/maths/careful_functions.hpp>
 #include <fearless/units/quantity.hpp>
 #include <fearless/units/dimensionless.hpp>
@@ -36,7 +37,9 @@ class LorentzTransform {
 
     static LorentzTransform rotation(maths::SpecialOrthogonalMatrix<T> const&);
 
-    Event<Reality, T> apply(Event<Reality, T> const&) const;
+    Event<Reality, T> apply(Event<Reality, T> const&, bool debug=false) const;
+
+    void dump(std::ostream&);
 
     friend inline LorentzTransform
     operator*(LorentzTransform const& l, LorentzTransform const& r) {
@@ -77,14 +80,17 @@ LorentzTransform<Reality, T>::rotation(
   )
 {
   boost::math::quaternion<T> q = r.as_quaternion();
-  maths::Complex<T> const z1 = q.C_component_1();
-  maths::Complex<T> const z2 = q.C_component_2();
-  return LorentzTransform(Representation(z1, z2, -z1.conj(), z2.conj()));
+  maths::Complex<T> const z1(q.R_component_1(), q.R_component_4());
+  maths::Complex<T> const z2(q.R_component_3(), q.R_component_2());
+  return LorentzTransform(Representation(z1.conj(), -z2.conj(), z2, z1));
 }
 
 template<typename Reality, typename T>
 Event<Reality, T>
-LorentzTransform<Reality, T>::apply(Event<Reality, T> const& x) const
+LorentzTransform<Reality, T>::apply(
+    Event<Reality, T> const& x,
+    bool debug
+  ) const
 {
   typedef maths::HermitianMatrix<units::quantity<units::length, T>, 2>
     EventAsMatrix;
@@ -93,7 +99,15 @@ LorentzTransform<Reality, T>::apply(Event<Reality, T> const& x) const
       maths::Complex<units::quantity<units::length, T>>{x.x(), -x.y()},
       x.t() - x.z()
     };
+  if (debug) {
+    std::cout << "x_as_matrix:\n";
+    maths::dump_matrix(std::cout, x_as_matrix);
+  }
   EventAsMatrix const result_as_matrix = x_as_matrix.conjugate(representation_);
+  if (debug) {
+    std::cout << "result_as_matrix:\n";
+    maths::dump_matrix(std::cout, result_as_matrix);
+  }
   auto const m00 = maths::matrix_element<0, 0>(result_as_matrix);
   auto const m01 = maths::matrix_element<0, 1>(result_as_matrix);
   auto const m11 = maths::matrix_element<1, 1>(result_as_matrix);
@@ -103,6 +117,12 @@ LorentzTransform<Reality, T>::apply(Event<Reality, T> const& x) const
     Displacement<T>{m01.real(), -m01.imag(), (m00-m11)/two}
   };
   return result;
+}
+
+template<typename Reality, typename T>
+void LorentzTransform<Reality, T>::dump(std::ostream& o)
+{
+  o << representation_;
 }
 
 }}

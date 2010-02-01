@@ -17,6 +17,7 @@ class SpecialLinearMatrix {
       T const sqrt_det = sqrt(a*d - b*c);
       using std::isfinite;
       assert(isfinite(sqrt_det));
+      assert(sqrt_det != 0.0);
       elem_[0][0] = a/sqrt_det;
       elem_[0][1] = b/sqrt_det;
       elem_[1][0] = c/sqrt_det;
@@ -37,6 +38,13 @@ class SpecialLinearMatrix {
       T const c = l.c() * r.a() + l.d() * r.c();
       T const d = l.c() * r.b() + l.d() * r.d();
       return SpecialLinearMatrix(a, b, c, d);
+    }
+
+    friend std::ostream&
+    operator<<(std::ostream& o, SpecialLinearMatrix const& m) {
+      o << '[' << m.elem_[0][0] << ", " << m.elem_[0][1] << "]\n";
+      o << '[' << m.elem_[1][0] << ", " << m.elem_[1][1] << "]\n";
+      return o;
     }
   private:
     std::array<std::array<T, 2>, 2> elem_;
