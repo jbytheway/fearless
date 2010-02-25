@@ -13,6 +13,8 @@ class Renderer : public GlutCallbacks {
     virtual void idle();
     virtual void reshape(int width, int height);
   private:
+    int width_;
+    int height_;
     float fov_;
 };
 
