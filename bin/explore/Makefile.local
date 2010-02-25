@@ -1,0 +1,3 @@
+BIN := explore
+LIB_DEP_NAMES := fearless
+LIBS := -lglut

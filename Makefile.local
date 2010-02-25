@@ -1,2 +1,6 @@
-SUBDIRS = fearless
+SUBDIRS = fearless bin
+
+all-recurse-bin: all-recurse-fearless
+
+test-recurse-bin: test-recurse-fearless
 
