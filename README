@@ -24,6 +24,9 @@ this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ACKNOWLEDGEMENTS
 ----------------
-The code draws inspiration from Celestia, the real-time space simulator
-(http://www.shatters.net/celestia/).
+The code draws inspiration and code from Celestia, the real-time space
+simulator (http://www.shatters.net/celestia/).  My knowledge of OpenGL and
+associated libraries comes almost exclusively from the tutorials at
+http://www.lighthouse3d.com/opengl/ and http://nehe.gamedev.net/; many thanks
+to the authors of and contributors to those sites.
 
