@@ -5,22 +5,29 @@
 #include <GL/glut.h>
 
 #include "scopedorthographicprojection.hpp"
+#include "scopedbindtexture.hpp"
 #include "bitmapstring.hpp"
 
 namespace fearless { namespace explore {
 
-Renderer::Renderer() :
+Renderer::Renderer(TextureSource const& textureSource) :
   width_{1},
   height_{1},
-  fov_{45}
+  fov_{45},
+  starTexture_{textureSource.load_star()}
 {
 }
 
 void Renderer::display()
 {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  // Turn on blending which just adds up the colour
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+
   glLoadIdentity();
   glTranslatef(0, 0, -6);
+  glColor3f(1, 1, 1);
   glBegin(GL_QUADS);
     glVertex3f(-1, -1, 0);
     glVertex3f( 1, -1, 0);
@@ -28,8 +35,20 @@ void Renderer::display()
     glVertex3f(-1,  1, 0);
   glEnd();
   {
+    ScopedBindTexture s(*starTexture_);
+    glEnable(GL_POINT_SPRITE);
+    glPointSize(20);
+    glBegin(GL_POINTS);
+      glColor3f(0.5, 0, 0);
+      glVertex3f(-1.5, 0, 0);
+      glVertex3f(-1.5, 0.1, 0);
+    glEnd();
+    glDisable(GL_POINT_SPRITE);
+  }
+  {
     ScopedOrthographicProjection p(width_, height_);
     glLoadIdentity();
+    glColor3f(1, 1, 1);
     BitmapString(
         BitmapString::Font::Helvetica, 12,
         "Fearless Explorer\nTest"

@@ -1,6 +1,6 @@
 #include "glutmain.hpp"
 
-#include <GL/glut.h>
+#include <GL/freeglut.h>
 
 #include <fearless/fatal.hpp>
 
@@ -40,8 +40,15 @@ GlutMain::GlutMain(int* argc, char** argv)
   // Window creation must come *before* tex loading
   glutCreateWindow("explore");
 
-  // Load textures here?
   glEnable(GL_TEXTURE_2D);
+  // Something like this might hypothetically allow variable size points within
+  // one glBegin/End, but probably only with GLSL fun.
+  //glEnable(GL_VERTEX_PROGRAM_POINT_SIZE_ARB);
+
+  // I can't find out what this means, but it's important.  Described by one
+  // source as "Specify point sprite texture coordinate replacement mode for
+  // each texture unit" (What?!)
+  glTexEnvi(GL_POINT_SPRITE, GL_COORD_REPLACE, GL_TRUE);
 }
 
 GlutMain::~GlutMain()
@@ -56,6 +63,10 @@ void GlutMain::go(GlutCallbacks& c)
   glutDisplayFunc(display);
   glutIdleFunc(idle);
   glutReshapeFunc(reshape);
+
+  // This option allows glutMainLoop to return, thus allowing all our
+  // destructors to run and not leak memory everywhere
+  glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
 
   glutMainLoop();
 }

@@ -11,6 +11,7 @@ class GlutCallbacks {
   protected:
     GlutCallbacks() = default;
     GlutCallbacks(GlutCallbacks const&) = default;
+    GlutCallbacks& operator=(GlutCallbacks const&) = default;
     virtual ~GlutCallbacks() = 0;
 };
 
