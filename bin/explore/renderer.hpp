@@ -2,6 +2,7 @@
 #define FEARLESS_EXPLORE__RENDERER_HPP
 
 #include <memory>
+#include <queue>
 
 #include <boost/noncopyable.hpp>
 
@@ -26,6 +27,7 @@ class Renderer : public GlutCallbacks, private boost::noncopyable {
     units::quantity<units::plane_angle, float> fov_;
     units::quantity<units::plane_angle, float> pixel_size_;
     std::unique_ptr<Texture> star_texture_;
+    std::queue<int> frame_times_;
 };
 
 }}

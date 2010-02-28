@@ -2,6 +2,8 @@
 
 #include <algorithm>
 
+#include <boost/format.hpp>
+
 #include <GL/glut.h>
 
 #include <fearless/debug.hpp>
@@ -23,6 +25,13 @@ Renderer::Renderer(TextureSource const& textureSource) :
 
 void Renderer::display()
 {
+  // Update frame_times_ for FPS monitor
+  int time = glutGet(GLUT_ELAPSED_TIME);
+  frame_times_.push(time);
+  while (frame_times_.front() < time - 1000) {
+    frame_times_.pop();
+  }
+
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   // Turn on blending which just adds up the colour
   glEnable(GL_BLEND);
@@ -54,7 +63,8 @@ void Renderer::display()
     glColor3f(1, 1, 1);
     BitmapString(
         BitmapString::Font::Helvetica, 12,
-        "Fearless Explorer\nTest"
+        (boost::format("Fearless Explorer\n%d fps") %
+          frame_times_.size()).str()
       ).render_top_left(5, 5);
   }
   glutSwapBuffers();
