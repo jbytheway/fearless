@@ -4,6 +4,8 @@
 
 #include <GL/glut.h>
 
+#include <fearless/debug.hpp>
+
 #include "scopedorthographicprojection.hpp"
 #include "scopedbindtexture.hpp"
 #include "bitmapstring.hpp"
@@ -13,7 +15,8 @@ namespace fearless { namespace explore {
 Renderer::Renderer(TextureSource const& textureSource) :
   width_{1},
   height_{1},
-  fov_{45},
+  fov_{45*units::degrees},
+  pixel_size_{1*units::degree},
   starTexture_{textureSource.load_star()}
 {
 }
@@ -70,7 +73,9 @@ void Renderer::reshape(int width, int height)
 
   float ratio = 1.0 * width_ / height_;
   // Make wider dimension have specified field of view
-  float y_fov = ( ratio > 1 ? fov_/ratio : fov_ );
+  units::quantity<units::plane_angle, float> y_fov =
+    ( ratio > 1 ? fov_/ratio : fov_ );
+  pixel_size_ = y_fov / float(height_);
 
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
@@ -79,7 +84,12 @@ void Renderer::reshape(int width, int height)
   glViewport(0/*left*/, 0/*bottom*/, width_/*right*/, height_/*top*/);
 
   // Set the correct perspective.
-  gluPerspective(y_fov/*fov in y-z plane*/,ratio,1/*near clip*/,10/*far clip*/);
+  gluPerspective(
+      y_fov / units::degree/*fov in y-z plane*/,
+      ratio,
+      1/*near clip*/,
+      10/*far clip*/
+    );
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
   gluLookAt(

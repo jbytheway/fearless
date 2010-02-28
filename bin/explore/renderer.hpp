@@ -5,6 +5,9 @@
 
 #include <boost/noncopyable.hpp>
 
+#include <fearless/units/quantity.hpp>
+#include <fearless/units/angle.hpp>
+
 #include "glutcallbacks.hpp"
 #include "texture.hpp"
 #include "texturesource.hpp"
@@ -20,7 +23,8 @@ class Renderer : public GlutCallbacks, private boost::noncopyable {
   private:
     int width_;
     int height_;
-    float fov_;
+    units::quantity<units::plane_angle, float> fov_;
+    units::quantity<units::plane_angle, float> pixel_size_;
     std::unique_ptr<Texture> starTexture_;
 };
 
