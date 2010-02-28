@@ -1,0 +1,75 @@
+{
+   OpenGL craziness
+   Memcheck:Cond
+   obj:/usr/lib64/opengl/nvidia/lib/libGLcore.so.190.42
+   obj:/usr/lib64/opengl/nvidia/lib/libGLcore.so.190.42
+   obj:*
+   obj:*
+   obj:*
+   obj:/usr/lib64/opengl/nvidia/lib/libGLcore.so.190.42
+}
+{
+   OpenGL craziness
+   Memcheck:Cond
+   obj:/usr/lib64/opengl/nvidia/lib/libGLcore.so.190.42
+   obj:/usr/lib64/opengl/nvidia/lib/libGLcore.so.190.42
+   obj:*
+   obj:*
+   obj:*
+   obj:*
+   obj:*
+   obj:/usr/lib64/opengl/nvidia/lib/libGLcore.so.190.42
+}
+{
+   OpenGL memory leak
+   Memcheck:Leak
+   fun:calloc
+   obj:/lib64/libdl-2.9.so
+   fun:dlopen
+   obj:/usr/lib64/opengl/nvidia/lib/libGL.so.190.42
+}
+{
+   OpenGL memory leak
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib64/opengl/nvidia/lib/libGL.so.190.42
+}
+{
+   OpenGL memory leak
+   Memcheck:Leak
+   fun:realloc
+   obj:/usr/lib64/opengl/nvidia/lib/libGL.so.190.42
+}
+{
+   OpenGL memory leak
+   Memcheck:Leak
+   fun:malloc
+   obj:/lib64/ld-2.9.so
+   obj:/lib64/ld-2.9.so
+   obj:/lib64/ld-2.9.so
+   obj:/lib64/ld-2.9.so
+   obj:/lib64/libdl-2.9.so
+   obj:/lib64/ld-2.9.so
+   obj:/lib64/libdl-2.9.so
+   fun:dlopen
+   obj:/usr/lib64/opengl/nvidia/lib/libGL.so.190.42
+   obj:/usr/lib64/opengl/nvidia/lib/libGLcore.so.190.42
+   obj:*
+}
+{
+   OpenGL memory leak
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib64/opengl/nvidia/lib/libGL.so.190.42
+   obj:*
+   obj:*
+   obj:*
+   obj:*
+   obj:*
+   obj:/usr/lib64/opengl/nvidia/lib/libnvidia-tls.so.190.42
+   fun:XGetVisualInfo
+   obj:/usr/lib64/opengl/nvidia/lib/libGL.so.190.42
+   obj:*
+   obj:*
+}
+
