@@ -25,7 +25,7 @@ class Renderer : public GlutCallbacks, private boost::noncopyable {
     int height_;
     units::quantity<units::plane_angle, float> fov_;
     units::quantity<units::plane_angle, float> pixel_size_;
-    std::unique_ptr<Texture> starTexture_;
+    std::unique_ptr<Texture> star_texture_;
 };
 
 }}

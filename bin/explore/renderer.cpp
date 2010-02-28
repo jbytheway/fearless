@@ -17,7 +17,7 @@ Renderer::Renderer(TextureSource const& textureSource) :
   height_{1},
   fov_{45*units::degrees},
   pixel_size_{1*units::degree},
-  starTexture_{textureSource.load_star()}
+  star_texture_{textureSource.load_star()}
 {
 }
 
@@ -38,7 +38,7 @@ void Renderer::display()
     glVertex3f(-1,  1, 0);
   glEnd();
   {
-    ScopedBindTexture s(*starTexture_);
+    ScopedBindTexture s(*star_texture_);
     glEnable(GL_POINT_SPRITE);
     glPointSize(20);
     glBegin(GL_POINTS);
