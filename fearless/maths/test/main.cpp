@@ -1,4 +1,4 @@
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE wolfshead test
+#define BOOST_TEST_MODULE fearless_maths test
 #include <boost/test/unit_test.hpp>
 
