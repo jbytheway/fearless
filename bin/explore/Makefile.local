@@ -1,3 +1,3 @@
 BIN := explore
-LIB_DEP_NAMES := fearless
+LIB_DEP_NAMES := fearless fearless-physics
 LIBS := -lboost_filesystem -lglut
