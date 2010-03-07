@@ -3,7 +3,14 @@
 
 namespace fearless { namespace physics {
 
+/** \brief Spectral class of star.
+ *
+ * \todo Do we need R and N?
+ *
+ * For more details see http://en.wikipedia.org/wiki/Spectral_type */
 enum class SpectralClass {
+  // O through M are 'normal' classes, in decreasing order of colour
+  // temperature
   O,
   B,
   A,
