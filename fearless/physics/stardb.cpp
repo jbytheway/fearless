@@ -15,6 +15,8 @@
 #include <fearless/units/quantity.hpp>
 #include <fearless/units/angle.hpp>
 #include <fearless/units/length.hpp>
+#include <fearless/units/magnitude.hpp>
+#include <fearless/units/quantitygrammar.hpp>
 #include <fearless/physics/spectraltypegrammar.hpp>
 
 namespace fearless { namespace physics {
@@ -28,17 +30,10 @@ namespace {
 
   struct CelestiaTxtStarData {
     CatalogueNumber catalogue_number;
-#if 0
     units::quantity<units::plane_angle, double> right_ascension;
     units::quantity<units::plane_angle, double> declination;
     units::quantity<units::length, double> distance;
-    double vmag;
-#elif 1
-    double right_ascension;
-    double declination;
-    double distance;
-    double vmag;
-#endif
+    units::quantity<units::magnitude, double> apparent_magnitude;
     SpectralType spectral_type;
   };
 
@@ -48,10 +43,10 @@ namespace {
 BOOST_FUSION_ADAPT_STRUCT(
   fearless::physics::CelestiaTxtStarData,
   (fearless::physics::CatalogueNumber, catalogue_number)
-  (double, right_ascension)
-  (double, declination)
-  (double, distance)
-  (double, vmag)
+  (decltype(fearless::physics::CelestiaTxtStarData::right_ascension), right_ascension)
+  (decltype(fearless::physics::CelestiaTxtStarData::declination), declination)
+  (decltype(fearless::physics::CelestiaTxtStarData::distance), distance)
+  (decltype(fearless::physics::CelestiaTxtStarData::apparent_magnitude), apparent_magnitude)
   (fearless::physics::SpectralType, spectral_type)
 )
 
@@ -63,17 +58,24 @@ namespace {
   struct CelestiaTxtStarDataGrammar :
     qi::grammar<Iterator, CelestiaTxtStarData()>
   {
-    CelestiaTxtStarDataGrammar() : CelestiaTxtStarDataGrammar::base_type(start)
+    CelestiaTxtStarDataGrammar() :
+      CelestiaTxtStarDataGrammar::base_type(start),
+      degreeParser(units::degrees),
+      lightYearParser(units::light_years),
+      magnitudeParser(units::magnitudes)
     {
-      qi::uint_parser<CatalogueNumber, 10, 1, -1> catalogueNumberParser;
       start %= catalogueNumberParser >> qi::omit[*spirit::ascii::space] >>
-        qi::double_ >> qi::omit[spirit::ascii::space] >>
-        qi::double_ >> qi::omit[spirit::ascii::space] >>
-        qi::double_ >> qi::omit[spirit::ascii::space] >>
-        qi::double_ >> qi::omit[spirit::ascii::space] >>
+        degreeParser >> qi::omit[spirit::ascii::space] >>
+        degreeParser >> qi::omit[spirit::ascii::space] >>
+        lightYearParser >> qi::omit[spirit::ascii::space] >>
+        magnitudeParser >> qi::omit[spirit::ascii::space] >>
         spectralTypeParser;
     }
 
+    units::QuantityGrammar<Iterator, units::plane_angle> degreeParser;
+    units::QuantityGrammar<Iterator, units::length> lightYearParser;
+    units::QuantityGrammar<Iterator, units::magnitude> magnitudeParser;
+    qi::uint_parser<CatalogueNumber, 10, 1, -1> catalogueNumberParser;
     SpectralTypeGrammar<Iterator> spectralTypeParser;
     qi::rule<Iterator, CelestiaTxtStarData()> start;
   };
