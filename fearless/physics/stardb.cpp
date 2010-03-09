@@ -12,6 +12,7 @@
 #include <boost/spirit/home/support/char_encoding/ascii.hpp>
 
 #include <fearless/fatal.hpp>
+#include <fearless/adapt_struct.hpp>
 #include <fearless/units/quantity.hpp>
 #include <fearless/units/angle.hpp>
 #include <fearless/units/length.hpp>
@@ -40,14 +41,14 @@ namespace {
 }}}
 
 // Adapt struct at global scope
-BOOST_FUSION_ADAPT_STRUCT(
+FEARLESS_ADAPT_STRUCT(
   fearless::physics::CelestiaTxtStarData,
-  (fearless::physics::CatalogueNumber, catalogue_number)
-  (decltype(fearless::physics::CelestiaTxtStarData::right_ascension), right_ascension)
-  (decltype(fearless::physics::CelestiaTxtStarData::declination), declination)
-  (decltype(fearless::physics::CelestiaTxtStarData::distance), distance)
-  (decltype(fearless::physics::CelestiaTxtStarData::apparent_magnitude), apparent_magnitude)
-  (fearless::physics::SpectralType, spectral_type)
+  (catalogue_number)
+  (right_ascension)
+  (declination)
+  (distance)
+  (apparent_magnitude)
+  (spectral_type)
 )
 
 namespace fearless { namespace physics {
