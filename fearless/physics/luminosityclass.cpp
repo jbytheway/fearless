@@ -15,9 +15,10 @@ namespace karma = boost::spirit::karma;
 
 namespace {
 
-  struct LuminosityClassTable : karma::symbols<LuminosityClass, char const*>
+  struct LuminosityClassKarmaTable :
+    karma::symbols<LuminosityClass, char const*>
   {
-    LuminosityClassTable() {
+    LuminosityClassKarmaTable() {
       add
         (LuminosityClass::Unknown, "")
         BOOST_PP_SEQ_FOR_EACH(
@@ -25,14 +26,14 @@ namespace {
           )
         ;
     }
-  } luminosity_class_table;
+  } luminosity_class_karma_table;
 
 }
 
 std::ostream& operator<<(std::ostream& o, LuminosityClass const c)
 {
   auto sink = std::ostream_iterator<char>(o);
-  if (!karma::generate(sink, luminosity_class_table, c)) {
+  if (!karma::generate(sink, luminosity_class_karma_table, c)) {
     FEARLESS_FATAL("output error");
   }
   return o;

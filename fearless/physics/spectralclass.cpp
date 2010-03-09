@@ -15,9 +15,9 @@ namespace karma = boost::spirit::karma;
 
 namespace {
 
-  struct SpectralClassTable : karma::symbols<SpectralClass, char const*>
+  struct SpectralClassKarmaTable : karma::symbols<SpectralClass, char const*>
   {
-    SpectralClassTable() {
+    SpectralClassKarmaTable() {
       add
         (SpectralClass::Unknown, "?")
         BOOST_PP_SEQ_FOR_EACH(
@@ -25,14 +25,14 @@ namespace {
           )
         ;
     }
-  } spectral_class_table;
+  } spectral_class_karma_table;
 
 }
 
 std::ostream& operator<<(std::ostream& o, SpectralClass const c)
 {
   auto sink = std::ostream_iterator<char>(o);
-  if (!karma::generate(sink, spectral_class_table, c)) {
+  if (!karma::generate(sink, spectral_class_karma_table, c)) {
     FEARLESS_FATAL("output error");
   }
   return o;
