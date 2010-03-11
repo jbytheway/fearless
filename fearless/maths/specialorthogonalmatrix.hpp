@@ -37,7 +37,7 @@ SpecialOrthogonalMatrix<T> SpecialOrthogonalMatrix<T>::rotation_from_to(
   // Implementation adapted from Celestia
   // Original was
   // Copyright (C) 2000-2006, Chris Laurel <claurel@shatters.net>
-  
+
   assert(v0.norm_squared() == 1);
   assert(v1.norm_squared() == 1);
 
@@ -106,15 +106,15 @@ operator*(SpecialOrthogonalMatrix<T> const& l, ThreeVector const& r)
   T const x = l.as_quaternion().R_component_2();
   T const y = l.as_quaternion().R_component_3();
   T const z = l.as_quaternion().R_component_4();
-  T wx = w * x * 2;
-  T wy = w * y * 2;
-  T wz = w * z * 2;
-  T xx = x * x * 2;
-  T xy = x * y * 2;
-  T xz = x * z * 2;
-  T yy = y * y * 2;
-  T yz = y * z * 2;
-  T zz = z * z * 2;
+  T const wx = w * x * 2;
+  T const wy = w * y * 2;
+  T const wz = w * z * 2;
+  T const xx = x * x * 2;
+  T const xy = x * y * 2;
+  T const xz = x * z * 2;
+  T const yy = y * y * 2;
+  T const yz = y * z * 2;
+  T const zz = z * z * 2;
 
   return ThreeVector(
       (1 - yy - zz)*r.x() +     (xy - wz)*r.y() +     (xz + wy)*r.z(),
