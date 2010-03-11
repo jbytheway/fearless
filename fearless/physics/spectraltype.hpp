@@ -1,6 +1,8 @@
 #ifndef FEARLESS_PHYSICS__SPECTRALTYPE_HPP
 #define FEARLESS_PHYSICS__SPECTRALTYPE_HPP
 
+#include <boost/optional.hpp>
+
 #include <fearless/physics/spectralclass.hpp>
 #include <fearless/physics/spectralsubclass.hpp>
 #include <fearless/physics/luminosityclass.hpp>
