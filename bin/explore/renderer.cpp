@@ -83,7 +83,7 @@ void Renderer::reshape(int width, int height)
 
   float ratio = 1.0 * width_ / height_;
   // Make wider dimension have specified field of view
-  units::quantity<units::plane_angle, float> y_fov =
+  units::quantity<units::degree_angle, float> y_fov =
     ( ratio > 1 ? fov_/ratio : fov_ );
   pixel_size_ = y_fov / float(height_);
 

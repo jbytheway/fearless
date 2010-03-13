@@ -3,11 +3,11 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/test/test_tools.hpp>
 
-#include <fearless/physics/stardb.hpp>
+#include <fearless/physics/starloader.hpp>
 
 namespace fearless { namespace physics {
 
-BOOST_AUTO_TEST_CASE(stardb_loads)
+BOOST_AUTO_TEST_CASE(starloader_loads)
 {
   std::istringstream is(
       "26\n"
@@ -38,9 +38,9 @@ BOOST_AUTO_TEST_CASE(stardb_loads)
       "27  0.085469696 -41.297537028 351.094726 9.32 G5V\n"
       "28  0.087249068 -43.361799571 645.875248 8.83 F3/F5V\n"
     );
-  StarDb db;
-  BOOST_CHECKPOINT("loading stardb");
-  db.load_celestia_txt(is);
+  StarLoader loader;
+  BOOST_CHECKPOINT("loading sample txt file");
+  loader.load_celestia_txt(is);
 }
 
 }}

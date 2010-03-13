@@ -4,8 +4,11 @@
 #include <boost/math/quaternion.hpp>
 
 #include <fearless/fatal.hpp>
+#include <fearless/units/quantity.hpp>
+#include <fearless/units/angle.hpp>
 #include <fearless/maths/standard_tolerance.hpp>
 #include <fearless/maths/very_near_to.hpp>
+#include <fearless/maths/matrix3.hpp>
 
 namespace fearless { namespace maths {
 
@@ -18,9 +21,27 @@ class SpecialOrthogonalMatrix {
     static SpecialOrthogonalMatrix<T>
     rotation_from_to(ThreeVector const&, ThreeVector const&);
 
+    template<int Axis, typename U>
+    static SpecialOrthogonalMatrix
+    axis_rotation(units::quantity<units::radian_angle, U> const&);
+
+    template<typename U>
+    static SpecialOrthogonalMatrix
+    x_rotation(units::quantity<units::radian_angle, U> const&);
+
+    template<typename U>
+    static SpecialOrthogonalMatrix
+    y_rotation(units::quantity<units::radian_angle, U> const&);
+
+    template<typename U>
+    static SpecialOrthogonalMatrix
+    z_rotation(units::quantity<units::radian_angle, U> const&);
+
     Representation const& as_quaternion() const { return representation_; }
 
     SpecialOrthogonalMatrix inverse() const;
+
+    Matrix3<T> to_matrix() const;
   private:
     SpecialOrthogonalMatrix(T const a, T const b, T const c, T const d);
     explicit SpecialOrthogonalMatrix(Representation r) : representation_(r) {}
@@ -79,9 +100,77 @@ SpecialOrthogonalMatrix<T> SpecialOrthogonalMatrix<T>::rotation_from_to(
 }
 
 template<typename T>
+template<int Axis, typename U>
+SpecialOrthogonalMatrix<T>
+SpecialOrthogonalMatrix<T>::axis_rotation(
+    units::quantity<units::radian_angle, U> const& angle
+  )
+{
+  BOOST_MPL_ASSERT_RELATION(Axis, >=, 0);
+  BOOST_MPL_ASSERT_RELATION(Axis, <, 3);
+  T const s = sin(angle * U(0.5));
+  T const c = cos(angle * U(0.5));
+  return SpecialOrthogonalMatrix(c, s*(Axis==0), s*(Axis==1), s*(Axis==2));
+}
+
+template<typename T>
+template<typename U>
+SpecialOrthogonalMatrix<T>
+SpecialOrthogonalMatrix<T>::x_rotation(
+    units::quantity<units::radian_angle, U> const& angle
+  )
+{
+  return axis_rotation<0>(angle);
+}
+
+template<typename T>
+template<typename U>
+SpecialOrthogonalMatrix<T>
+SpecialOrthogonalMatrix<T>::y_rotation(
+    units::quantity<units::radian_angle, U> const& angle
+  )
+{
+  return axis_rotation<1>(angle);
+}
+
+template<typename T>
+template<typename U>
+SpecialOrthogonalMatrix<T>
+SpecialOrthogonalMatrix<T>::z_rotation(
+    units::quantity<units::radian_angle, U> const& angle
+  )
+{
+  return axis_rotation<2>(angle);
+}
+
+template<typename T>
 SpecialOrthogonalMatrix<T> SpecialOrthogonalMatrix<T>::inverse() const
 {
   return SpecialOrthogonalMatrix(conj(representation_));
+}
+
+template<typename T>
+Matrix3<T> SpecialOrthogonalMatrix<T>::to_matrix() const
+{
+  T const w = as_quaternion().R_component_1();
+  T const x = as_quaternion().R_component_2();
+  T const y = as_quaternion().R_component_3();
+  T const z = as_quaternion().R_component_4();
+  T const wx = w * x * 2;
+  T const wy = w * y * 2;
+  T const wz = w * z * 2;
+  T const xx = x * x * 2;
+  T const xy = x * y * 2;
+  T const xz = x * z * 2;
+  T const yy = y * y * 2;
+  T const yz = y * z * 2;
+  T const zz = z * z * 2;
+
+  return Matrix3<T>(
+      (1 - yy - zz),     (xy - wz),     (xz + wy),
+          (xy + wz), (1 - xx - zz),     (yz - wx),
+          (xz - wy),     (yz + wx), (1 - xx - yy)
+    );
 }
 
 template<typename T>
@@ -99,28 +188,12 @@ SpecialOrthogonalMatrix<T>::SpecialOrthogonalMatrix(
 }
 
 template<typename T, typename ThreeVector>
-ThreeVector
+inline typename std::enable_if<
+  IsThreeVector<ThreeVector>::value, ThreeVector
+>::type
 operator*(SpecialOrthogonalMatrix<T> const& l, ThreeVector const& r)
 {
-  T const w = l.as_quaternion().R_component_1();
-  T const x = l.as_quaternion().R_component_2();
-  T const y = l.as_quaternion().R_component_3();
-  T const z = l.as_quaternion().R_component_4();
-  T const wx = w * x * 2;
-  T const wy = w * y * 2;
-  T const wz = w * z * 2;
-  T const xx = x * x * 2;
-  T const xy = x * y * 2;
-  T const xz = x * z * 2;
-  T const yy = y * y * 2;
-  T const yz = y * z * 2;
-  T const zz = z * z * 2;
-
-  return ThreeVector(
-      (1 - yy - zz)*r.x() +     (xy - wz)*r.y() +     (xz + wy)*r.z(),
-          (xy + wz)*r.x() + (1 - xx - zz)*r.y() +     (yz - wx)*r.z(),
-          (xz - wy)*r.x() +     (yz + wx)*r.y() + (1 - xx - yy)*r.z()
-    );
+  return l.to_matrix()*r;
 }
 
 }}

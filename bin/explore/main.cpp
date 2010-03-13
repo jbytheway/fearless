@@ -1,6 +1,6 @@
 #include <boost/filesystem/fstream.hpp>
 
-#include <fearless/physics/stardb.hpp>
+#include <fearless/physics/starloader.hpp>
 
 #include "glutmain.hpp"
 #include "renderer.hpp"
@@ -11,9 +11,9 @@ int main(int argc, char** argv)
   boost::filesystem::path exePath = exe.parent_path();
   boost::filesystem::path dataPath = exePath/".."/".."/".."/"data";
 
-  fearless::physics::StarDb starDb;
+  fearless::physics::StarLoader starLoader;
   boost::filesystem::ifstream starsTxt(dataPath/"celestia_stars.txt");
-  starDb.load_celestia_txt(starsTxt);
+  starLoader.load_celestia_txt(starsTxt);
 
   fearless::explore::GlutMain m(&argc, argv);
   /** \todo Worry a bit more about where to search */

@@ -8,6 +8,7 @@
 #include <boost/units/cmath.hpp>
 
 #include <fearless/units/zero.hpp>
+#include <fearless/maths/isthreevector.hpp>
 
 namespace fearless { namespace physics {
 
@@ -154,6 +155,31 @@ bool very_near_to(
   ) {
   return (x-y).norm()/(x.norm()+y.norm()) < tolerance;
 }
+
+namespace detail {
+
+  struct ConvertibleFromThreeVector {
+    template<typename Quantity>
+    ConvertibleFromThreeVector(ThreeVector<Quantity> const&);
+  };
+
+}
+
+}}
+
+// Specialize IsThreeVector
+namespace fearless { namespace maths {
+
+template<typename DerivedThreeVector>
+struct IsThreeVector<
+  DerivedThreeVector,
+  typename std::enable_if<
+    std::is_convertible<
+      DerivedThreeVector,
+      fearless::physics::detail::ConvertibleFromThreeVector
+    >::value
+  >::type
+> : std::true_type {};
 
 }}
 

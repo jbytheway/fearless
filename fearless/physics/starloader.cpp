@@ -1,4 +1,4 @@
-#include <fearless/physics/stardb.hpp>
+#include <fearless/physics/starloader.hpp>
 
 #include <boost/fusion/include/adapt_struct.hpp>
 #include <boost/spirit/home/support/iterators/istream_iterator.hpp>
@@ -27,12 +27,10 @@ namespace qi = spirit::qi;
 
 namespace {
 
-  typedef uint64_t CatalogueNumber;
-
   struct CelestiaTxtStarData {
     CatalogueNumber catalogue_number;
-    units::quantity<units::plane_angle, double> right_ascension;
-    units::quantity<units::plane_angle, double> declination;
+    units::quantity<units::radian_angle, double> right_ascension;
+    units::quantity<units::radian_angle, double> declination;
     units::quantity<units::length, double> distance;
     units::quantity<units::magnitude, double> apparent_magnitude;
     SpectralType spectral_type;
@@ -73,7 +71,7 @@ namespace {
         spectralTypeParser;
     }
 
-    units::QuantityGrammar<Iterator, units::plane_angle> degreeParser;
+    units::QuantityGrammar<Iterator, units::radian_angle> degreeParser;
     units::QuantityGrammar<Iterator, units::length> lightYearParser;
     units::QuantityGrammar<Iterator, units::magnitude> magnitudeParser;
     qi::uint_parser<CatalogueNumber, 10, 1, -1> catalogueNumberParser;
@@ -83,7 +81,7 @@ namespace {
 
 }
 
-void StarDb::load_celestia_txt(std::istream& in)
+void StarLoader::load_celestia_txt(std::istream& in)
 {
   std::string line;
   if (!std::getline(in, line)) {
@@ -112,7 +110,6 @@ void StarDb::load_celestia_txt(std::istream& in)
     }
   }
 
-  std::vector<CelestiaTxtStarData> v;
   CelestiaTxtStarDataGrammar<it> lineParser;
 
   while (std::getline(in, line)) {
@@ -134,8 +131,33 @@ void StarDb::load_celestia_txt(std::istream& in)
           "' rest of line: '" << rest_of_line << "'"
         );
     }
-    v.push_back(starData);
+    add_star(
+        starData.catalogue_number,
+        EquatorialCoordinates<double>(
+          starData.right_ascension, starData.declination, starData.distance
+        ),
+        starData.spectral_type
+      );
   }
+}
+
+void StarLoader::add_star(
+    CatalogueNumber const num,
+    EquatorialCoordinates<double> const& coords,
+    SpectralType const& spectralType
+  )
+{
+  Displacement<double> const position = coords.to_celestial_cartesian();
+  add_star(num, position, spectralType);
+}
+
+void StarLoader::add_star(
+    CatalogueNumber const num,
+    Displacement<double> const& position,
+    SpectralType const& spectralType
+  )
+{
+  stars_.push_back(Star(num, position, spectralType));
 }
 
 }}
