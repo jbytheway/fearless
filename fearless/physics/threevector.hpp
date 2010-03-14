@@ -31,6 +31,12 @@ class ThreeVector {
       values_{std::move(x), std::move(y), std::move(z)}
     {}
 
+    template<typename U>
+    explicit ThreeVector(
+        ThreeVector<units::quantity<unit, U>> const& v
+      ) : values_{v.x(), v.y(), v.z()}
+    {}
+
     quantity const& x() const { return std::get<0>(values_); }
     quantity const& y() const { return std::get<1>(values_); }
     quantity const& z() const { return std::get<2>(values_); }
@@ -38,7 +44,7 @@ class ThreeVector {
     quantity_squared norm_squared() const {
       return x()*x()+y()*y()+z()*z();
     }
-    quantity norm() const { return sqrt(norm_squared()); }
+    quantity norm() const { return quantity(sqrt(norm_squared())); }
 
     ThreeVector& operator/=(value_type r) {
       std::get<0>(values_) /= r;

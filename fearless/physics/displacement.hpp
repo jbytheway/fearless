@@ -14,6 +14,12 @@ class Displacement : public ThreeVector<units::quantity<units::length, T>> {
 
     Displacement() = default;
     Displacement(base_type const& v) : base_type(v) {}
+
+    template<typename U>
+    explicit Displacement(
+        ThreeVector<units::quantity<units::length, U>> const& v
+      ) : base_type(v) {}
+
     Displacement(quantity x, quantity y, quantity z) :
       base_type{std::move(x), std::move(y), std::move(z)}
     {}
