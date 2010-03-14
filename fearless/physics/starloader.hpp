@@ -1,7 +1,7 @@
 #ifndef FEARLESS_PHYSICS__STARLOADER_HPP
 #define FEARLESS_PHYSICS__STARLOADER_HPP
 
-#include <istream>
+#include <iosfwd>
 
 #include <fearless/physics/cataloguenumber.hpp>
 #include <fearless/physics/equatorialcoordinates.hpp>
@@ -32,6 +32,8 @@ class StarLoader {
         Displacement<double> const&,
         SpectralType const&
       );
+
+    std::vector<Star> const& stars() const { return stars_; }
   private:
     std::vector<Star> stars_;
 };
