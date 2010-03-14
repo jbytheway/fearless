@@ -6,6 +6,7 @@
 #include <boost/units/get_system.hpp>
 #include <boost/units/get_dimension.hpp>
 #include <boost/units/cmath.hpp>
+#include <boost/units/io.hpp>
 
 #include <fearless/units/zero.hpp>
 #include <fearless/maths/isthreevector.hpp>
