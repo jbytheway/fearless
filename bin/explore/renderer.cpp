@@ -2,11 +2,13 @@
 
 #include <algorithm>
 
+#include <boost/bind.hpp>
 #include <boost/format.hpp>
 
 #include <GL/glut.h>
 
 #include <fearless/debug.hpp>
+#include <fearless/units/dimensionless.hpp>
 
 #include "scopedorthographicprojection.hpp"
 #include "scopedbindtexture.hpp"
@@ -14,7 +16,11 @@
 
 namespace fearless { namespace explore {
 
-Renderer::Renderer(TextureSource const& textureSource) :
+Renderer::Renderer(
+    physics::StarIndex const& starIndex,
+    TextureSource const& textureSource
+  ) :
+  star_index_(starIndex),
   width_{1},
   height_{1},
   fov_{45*units::degrees},
@@ -37,23 +43,16 @@ void Renderer::display()
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
-  glLoadIdentity();
-  glTranslatef(0, 0, -6);
-  glColor3f(1, 1, 1);
-  glBegin(GL_QUADS);
-    glVertex3f(-1, -1, 0);
-    glVertex3f( 1, -1, 0);
-    glVertex3f( 1,  1, 0);
-    glVertex3f(-1,  1, 0);
-  glEnd();
   {
     ScopedBindTexture s(*star_texture_);
+    glLoadIdentity();
     glEnable(GL_POINT_SPRITE);
-    glPointSize(20);
+    glPointSize(4);
     glBegin(GL_POINTS);
-      glColor3f(0.5, 0, 0);
-      glVertex3f(-1.5, 0, 0);
-      glVertex3f(-1.5, 0.1, 0);
+      glColor3f(0.2, 0, 0);
+      star_index_.apply_to_stars(
+          boost::bind(&Renderer::render_star, this, _1)
+        );
     glEnd();
     glDisable(GL_POINT_SPRITE);
   }
@@ -97,7 +96,7 @@ void Renderer::reshape(int width, int height)
   gluPerspective(
       y_fov / units::degree/*fov in y-z plane*/,
       ratio,
-      1/*near clip*/,
+      0.5/*near clip*/,
       10/*far clip*/
     );
   glMatrixMode(GL_MODELVIEW);
@@ -107,6 +106,14 @@ void Renderer::reshape(int width, int height)
       0.0, 0.0,-1.0, /*look at*/
       0.0, 1.0, 0.0  /*up*/
     );
+}
+
+void Renderer::render_star(physics::Star const& star)
+{
+  physics::Displacement<float> pos(star.position());
+  physics::ThreeVector<units::quantity<units::dimensionless, float>> n_pos =
+    pos/pos.norm();
+  glVertex3f(n_pos.x(), n_pos.y(), n_pos.z());
 }
 
 }}

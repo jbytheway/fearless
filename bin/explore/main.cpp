@@ -20,7 +20,7 @@ int main(int argc, char** argv)
   fearless::explore::GlutMain m(&argc, argv);
   /** \todo Worry a bit more about where to search */
   fearless::explore::TextureSource texSrc(dataPath);
-  fearless::explore::Renderer r(texSrc);
+  fearless::explore::Renderer r(starIndex, texSrc);
   m.go(r);
 }
 
