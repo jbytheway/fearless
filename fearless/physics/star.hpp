@@ -14,10 +14,15 @@ class Star {
         Displacement<double> const&,
         SpectralType const&
       );
+
+    CatalogueNumber catalogue_number() const { return catalogue_number_; }
+    Displacement<double> const& position() const { return position_; }
   private:
     CatalogueNumber catalogue_number_;
     Displacement<double> position_;
 };
+
+std::ostream& operator<<(std::ostream&, Star const&);
 
 }}
 

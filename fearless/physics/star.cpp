@@ -11,5 +11,11 @@ Star::Star(
   position_(position)
 {}
 
+std::ostream& operator<<(std::ostream& o, Star const& s)
+{
+  o << s.catalogue_number() << ' ' << s.position();
+  return o;
+}
+
 }}
 
