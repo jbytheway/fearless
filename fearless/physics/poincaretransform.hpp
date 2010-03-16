@@ -18,6 +18,7 @@ class PoincareTransform {
       lorentz_(lorentz)
     {}
 
+    Event<Reality, T> const& translation() const { return translation_; }
     LorentzTransform<Reality, T> const& lorentz() const { return lorentz_; }
     Event<Reality, T> apply(Event<Reality, T> const& x) const {
       return lorentz_.apply(x + translation_);
