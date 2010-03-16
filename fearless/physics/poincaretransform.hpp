@@ -1,7 +1,6 @@
 #ifndef FEARLESS_PHYSICS__POINCARETRANSFORM_HPP
 #define FEARLESS_PHYSICS__POINCARETRANSFORM_HPP
 
-#include <fearless/fatal.hpp>
 #include <fearless/physics/event.hpp>
 #include <fearless/physics/lorentztransform.hpp>
 
