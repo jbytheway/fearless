@@ -12,10 +12,15 @@ namespace fearless { namespace physics {
 template<typename Reality>
 class RootFrame : public InertialFrame<Reality> {
   public:
+    RootFrame(std::string name) : name_(std::move(name)) {}
+
     virtual size_t depth() const { return 0; }
+    virtual std::string name() const { return name_; }
 
     virtual PoincareTransform<Reality, double>
     make_transform_from(InertialFrame<Reality> const& f) const;
+  private:
+    std::string name_;
 };
 
 template<typename Reality>

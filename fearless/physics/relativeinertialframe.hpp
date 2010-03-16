@@ -10,13 +10,19 @@ template<typename Reality>
 class RelativeInertialFrame : InertialFrame<Reality> {
   public:
     explicit RelativeInertialFrame(
-        std::shared_ptr<InertialFrame<Reality> const> r
+        std::shared_ptr<InertialFrame<Reality> const> r,
+        std::string name
       ) :
       relative_to_{std::move(r)},
-      depth_{relative_to_->depth()+1}
+      depth_{relative_to_->depth()+1},
+      name_(std::move(name))
     {}
 
+    std::shared_ptr<InertialFrame<Reality> const> const& relative_to() const {
+      return relative_to_;
+    }
     virtual size_t depth() const { return depth_; }
+    virtual std::string name() const { return name_; }
 
     virtual PoincareTransform<Reality, double>
     make_transform_from(InertialFrame<Reality> const& f) const;
@@ -24,6 +30,7 @@ class RelativeInertialFrame : InertialFrame<Reality> {
     std::shared_ptr<InertialFrame<Reality> const> relative_to_;
     PoincareTransform<Reality, double> transform_;
     size_t depth_;
+    std::string name_;
 };
 
 template<typename Reality>

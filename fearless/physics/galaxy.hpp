@@ -11,7 +11,7 @@ class Galaxy {
   public:
     explicit Galaxy(StarIndex const& star_index) :
       star_index_(star_index),
-      root_frame_{new RootFrame<Reality>()}
+      root_frame_{new RootFrame<Reality>(star_index.reference_frame())}
     {}
 
     StarIndex const& star_index() const { return star_index_; }

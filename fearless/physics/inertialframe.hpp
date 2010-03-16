@@ -11,6 +11,7 @@ class InertialFrame {
     virtual ~InertialFrame() = 0;
 
     virtual size_t depth() const = 0;
+    virtual std::string name() const = 0;
 
     virtual PoincareTransform<Reality, double>
     make_transform_from(InertialFrame const& f) const = 0;
