@@ -1,3 +1,4 @@
 SUBDIRS = test
 BIN = libfearless-physics.la
 LIB_DEP_NAMES := fearless-maths
+LIBS := -lboost_filesystem

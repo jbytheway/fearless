@@ -10,6 +10,7 @@
 #include <boost/spirit/home/qi/numeric/uint.hpp>
 #include <boost/spirit/home/qi/numeric/real.hpp>
 #include <boost/spirit/home/support/char_encoding/ascii.hpp>
+#include <boost/filesystem/fstream.hpp>
 
 #include <fearless/fatal.hpp>
 #include <fearless/adapt_struct.hpp>
@@ -139,6 +140,15 @@ void StarLoader::load_celestia_txt(std::istream& in)
         starData.spectral_type
       );
   }
+}
+
+void StarLoader::load_celestia_txt(boost::filesystem::path const& path)
+{
+  boost::filesystem::ifstream is(path);
+  if (!is) {
+    FEARLESS_FATAL("error opening " << path);
+  }
+  load_celestia_txt(is);
 }
 
 void StarLoader::add_star(

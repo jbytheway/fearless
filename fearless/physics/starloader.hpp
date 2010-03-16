@@ -3,6 +3,8 @@
 
 #include <iosfwd>
 
+#include <boost/filesystem/path.hpp>
+
 #include <fearless/physics/api.hpp>
 #include <fearless/physics/cataloguenumber.hpp>
 #include <fearless/physics/equatorialcoordinates.hpp>
@@ -23,6 +25,7 @@ namespace fearless { namespace physics {
 class FEARLESS_PHYSICS_API StarLoader {
   public:
     void load_celestia_txt(std::istream&);
+    void load_celestia_txt(boost::filesystem::path const&);
     void add_star(
         CatalogueNumber const,
         EquatorialCoordinates<double> const&,
