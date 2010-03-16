@@ -11,8 +11,12 @@ class SpecialLinearMatrix {
   public:
     static SpecialLinearMatrix scale_by(T const scale);
 
-    SpecialLinearMatrix(T const& a, T const& b, T const& c, T const& d)
-    {
+    SpecialLinearMatrix() {
+      elem_[0][0] = 1.0; elem_[0][1] = 0.0;
+      elem_[1][0] = 0.0; elem_[1][1] = 1.0;
+    }
+
+    SpecialLinearMatrix(T const& a, T const& b, T const& c, T const& d) {
       // Find the scale factor we'll need to make the determinant 1
       T const sqrt_det = sqrt(a*d - b*c);
       using std::isfinite;

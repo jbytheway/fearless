@@ -3,6 +3,7 @@
 
 #include <boost/mpl/times.hpp>
 
+#include <fearless/units/velocity.hpp>
 #include <fearless/physics/threevector.hpp>
 
 namespace fearless { namespace physics {
@@ -42,6 +43,14 @@ class FourVector {
     }
     quantity l2_norm() const { return sqrt(l2_norm_squared()); }
 
+    quantity_squared minkowski_norm_squared() const {
+      return spatial().norm_squared()-temporal()*temporal();
+    }
+
+    bool is_timelike() const {
+      return minkowski_norm_squared() < quantity_squared::from_value(0.0);
+    }
+
     friend inline bool
     operator==(FourVector const& l, FourVector const& r) {
       return l.temporal_ == r.temporal_ && l.spatial_ == r.spatial_;
@@ -68,6 +77,15 @@ operator-(FourVector<Q1> const& v) {
 template<typename Q1, typename Q2>
 inline FourVector<typename boost::units::multiply_typeof_helper<Q1, Q2>::type>
 operator*(FourVector<Q1> const& v, Q2 const& s) {
+  typedef
+    FourVector<typename boost::units::multiply_typeof_helper<Q1, Q2>::type>
+    type;
+  return type{v.temporal() * s, v.spatial() * s};
+}
+
+template<typename Q1, typename Q2>
+inline FourVector<typename boost::units::multiply_typeof_helper<Q1, Q2>::type>
+operator*(Q2 const& s, FourVector<Q1> const& v) {
   typedef
     FourVector<typename boost::units::multiply_typeof_helper<Q1, Q2>::type>
     type;

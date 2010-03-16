@@ -8,7 +8,9 @@
 
 #include <fearless/units/quantity.hpp>
 #include <fearless/units/angle.hpp>
-#include <fearless/physics/starindex.hpp>
+#include <fearless/physics/observer.hpp>
+#include <fearless/physics/galaxy.hpp>
+#include <fearless/physics/conventionalreality.hpp>
 
 #include "glutcallbacks.hpp"
 #include "texture.hpp"
@@ -17,15 +19,22 @@
 namespace fearless { namespace explore {
 
 class Renderer : public GlutCallbacks, private boost::noncopyable {
+  private:
+    typedef physics::ConventionalReality Reality;
   public:
     Renderer(physics::StarIndex const&, TextureSource const&);
     virtual void display();
     virtual void idle();
     virtual void reshape(int width, int height);
   private:
-    void render_star(physics::Star const&);
+    void render_star(
+        physics::PoincareTransform<Reality, double> const& galaxyToObserver,
+        physics::Event<Reality, double> const& starDirectionInObserverFrame,
+        physics::Star const&
+      );
 
-    physics::StarIndex const& star_index_;
+    physics::Galaxy<Reality> galaxy_;
+    physics::Observer<Reality> observer_;
     int width_;
     int height_;
     units::quantity<units::degree_angle, float> fov_;

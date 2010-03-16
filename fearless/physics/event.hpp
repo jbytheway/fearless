@@ -2,6 +2,7 @@
 #define FEARLESS_PHYSICS__EVENT_HPP
 
 #include <fearless/units/length.hpp>
+#include <fearless/units/time.hpp>
 #include <fearless/physics/fourvector.hpp>
 
 namespace fearless { namespace physics {

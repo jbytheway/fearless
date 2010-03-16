@@ -37,6 +37,8 @@ class LorentzTransform {
 
     static LorentzTransform rotation(maths::SpecialOrthogonalMatrix<T> const&);
 
+    LorentzTransform() = default;
+
     LorentzTransform inverse() const;
 
     Event<Reality, T> apply(Event<Reality, T> const&, bool debug=false) const;
@@ -70,8 +72,9 @@ LorentzTransform<Reality, T>::boost(Velocity<T> const& v)
   T const beta = v_norm/Reality::c.quantity();
   T const scale = sqrt((1-beta) / (1+beta));
   auto const boost_at_pole = Representation::scale_by(scale);
-  return rotation(rotate_n_to_pole) * LorentzTransform(boost_at_pole) *
-    rotation(rotate_n_to_pole.inverse());
+  return rotation(rotate_n_to_pole.inverse()) *
+    LorentzTransform(boost_at_pole) *
+    rotation(rotate_n_to_pole);
 }
 
 /** \brief Creates a LorentzTranform corresponding to the given rotation of

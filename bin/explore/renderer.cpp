@@ -9,6 +9,7 @@
 
 #include <fearless/debug.hpp>
 #include <fearless/units/dimensionless.hpp>
+#include <fearless/physics/worldline.hpp>
 
 #include "scopedorthographicprojection.hpp"
 #include "scopedbindtexture.hpp"
@@ -20,7 +21,8 @@ Renderer::Renderer(
     physics::StarIndex const& starIndex,
     TextureSource const& textureSource
   ) :
-  star_index_(starIndex),
+  galaxy_{starIndex},
+  observer_{physics::RelativeInertialFrame<Reality>(galaxy_.root_frame())},
   width_{1},
   height_{1},
   fov_{45*units::degrees},
@@ -44,14 +46,28 @@ void Renderer::display()
   glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
   {
+    physics::PoincareTransform<Reality, double> galaxyToObserverTransform =
+      observer_.make_transform_from(*galaxy_.root_frame());
+    // Because we don't support proper motion of Stars we can pull out the
+    // direction bit of the worldline transformation here, rarther than doing
+    // iy every time round the loop
+    /** \todo Should this be a FourVelocity? */
+    physics::Event<Reality, double> stationaryInGalaxyFrame(
+        1.0*units::metre, physics::Displacement<double>()
+      );
+    physics::Event<Reality, double> stationaryInObserverFrame =
+      galaxyToObserverTransform.lorentz().apply(stationaryInGalaxyFrame);
     ScopedBindTexture s(*star_texture_);
     glLoadIdentity();
     glEnable(GL_POINT_SPRITE);
     glPointSize(4);
     glBegin(GL_POINTS);
       glColor3f(0.2, 0, 0);
-      star_index_.apply_to_stars(
-          boost::bind(&Renderer::render_star, this, _1)
+      galaxy_.star_index().apply_to_stars(
+          boost::bind(
+            &Renderer::render_star, this,
+            galaxyToObserverTransform, stationaryInObserverFrame, _1
+          )
         );
     glEnd();
     glDisable(GL_POINT_SPRITE);
@@ -108,9 +124,19 @@ void Renderer::reshape(int width, int height)
     );
 }
 
-void Renderer::render_star(physics::Star const& star)
+void Renderer::render_star(
+    physics::PoincareTransform<Reality, double> const& galaxyToObserver,
+    physics::Event<Reality, double> const& starDirectionInObserverFrame,
+    physics::Star const& star
+  )
 {
-  physics::Displacement<float> pos(star.position());
+  physics::Worldline<Reality, double> starWorldline(
+      galaxyToObserver.apply(
+        physics::Event<Reality, double>(0.0*units::metres, star.position())
+      ),
+      starDirectionInObserverFrame
+    );
+  physics::Displacement<float> pos{starWorldline.visible_at().spatial()};
   physics::ThreeVector<units::quantity<units::dimensionless, float>> n_pos =
     pos/pos.norm();
   glVertex3f(n_pos.x(), n_pos.y(), n_pos.z());

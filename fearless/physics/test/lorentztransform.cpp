@@ -80,32 +80,65 @@ BOOST_AUTO_TEST_CASE(rotation_transforms_sensibly)
 
 BOOST_AUTO_TEST_CASE(boost_transforms_sensibly_along_path)
 {
-  Velocity<double> const
-    v{units::zero, units::zero, 0.5*Reality::c.quantity()};
-  auto const transform = LorentzTransform<Reality, double>::boost(v);
-  /*cout << "transform:\n"; transform.dump(std::cout); cout << endl;*/
-  Event<Reality, double> const origin{};
-  units::quantity<units::time, double> const time = 2*units::seconds;
-  Displacement<double> const position_after_t = v * time;
-  Event<Reality, double> const event_after_t(time, position_after_t);
-  units::quantity<units::time, double> const time_in_other_frame =
-    time / gamma<Reality>(v);
-  auto event_in_other_frame = transform.apply(event_after_t);
-  FEARLESS_MATHS_CHECK_VERY_NEAR(
-      event_in_other_frame.t_over_c<Reality>(), time_in_other_frame
-    );
-  // In the other frame, this position should coincide with the observer, and
-  // thus be at the spatial origin.  It's not useful to check things that way
-  // round, though, because of precision problems, so we need to transform
-  // backwards
-  auto const inverse_transform = transform.inverse();
-  Event<Reality, double> const putative_event_in_other_frame{
-    time_in_other_frame, Displacement<double>()
-  };
-  FEARLESS_MATHS_CHECK_VERY_NEAR(
-      inverse_transform.apply(putative_event_in_other_frame),
-      event_after_t
-    );
+  {
+    // First we do in the z-direction, which is the 'nicest' for the
+    // implementation
+    Velocity<double> const
+      v{units::zero, units::zero, 0.5*Reality::c.quantity()};
+    auto const transform = LorentzTransform<Reality, double>::boost(v);
+    /*cout << "transform:\n"; transform.dump(std::cout); cout << endl;*/
+    Event<Reality, double> const origin{};
+    units::quantity<units::time, double> const time = 2*units::seconds;
+    Displacement<double> const position_after_t = v * time;
+    Event<Reality, double> const event_after_t(time, position_after_t);
+    units::quantity<units::time, double> const time_in_other_frame =
+      time / gamma<Reality>(v);
+    auto event_in_other_frame = transform.apply(event_after_t);
+    FEARLESS_MATHS_CHECK_VERY_NEAR(
+        event_in_other_frame.t_over_c<Reality>(), time_in_other_frame
+      );
+    // In the other frame, this position should coincide with the observer, and
+    // thus be at the spatial origin.  It's not useful to check things that way
+    // round, though, because of precision problems, so we need to transform
+    // backwards
+    auto const inverse_transform = transform.inverse();
+    Event<Reality, double> const putative_event_in_other_frame{
+      time_in_other_frame, Displacement<double>()
+    };
+    FEARLESS_MATHS_CHECK_VERY_NEAR(
+        inverse_transform.apply(putative_event_in_other_frame),
+        event_after_t
+      );
+  }
+  {
+    // Now in the x direction
+    Velocity<double> const
+      v{0.5*Reality::c.quantity(), units::zero, units::zero};
+    auto const transform = LorentzTransform<Reality, double>::boost(v);
+    /*cout << "transform:\n"; transform.dump(std::cout); cout << endl;*/
+    Event<Reality, double> const origin{};
+    units::quantity<units::time, double> const time = 2*units::seconds;
+    Displacement<double> const position_after_t = v * time;
+    Event<Reality, double> const event_after_t(time, position_after_t);
+    units::quantity<units::time, double> const time_in_other_frame =
+      time / gamma<Reality>(v);
+    auto event_in_other_frame = transform.apply(event_after_t);
+    FEARLESS_MATHS_CHECK_VERY_NEAR(
+        event_in_other_frame.t_over_c<Reality>(), time_in_other_frame
+      );
+    // In the other frame, this position should coincide with the observer, and
+    // thus be at the spatial origin.  It's not useful to check things that way
+    // round, though, because of precision problems, so we need to transform
+    // backwards
+    auto const inverse_transform = transform.inverse();
+    Event<Reality, double> const putative_event_in_other_frame{
+      time_in_other_frame, Displacement<double>()
+    };
+    FEARLESS_MATHS_CHECK_VERY_NEAR(
+        inverse_transform.apply(putative_event_in_other_frame),
+        event_after_t
+      );
+  }
 }
 
 }}
