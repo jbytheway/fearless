@@ -43,6 +43,8 @@ class LorentzTransform {
 
     Event<Reality, T> apply(Event<Reality, T> const&, bool debug=false) const;
 
+    Velocity<T> velocity() const;
+
     void dump(std::ostream&) const;
 
     friend inline LorentzTransform
@@ -130,6 +132,17 @@ LorentzTransform<Reality, T>::apply(
     Displacement<T>{m01.real(), -m01.imag(), (m00-m11)/two}
   };
   return result;
+}
+
+/** \brief Compute the velocity giving rise to this transform */
+template<typename Reality, typename T>
+Velocity<T> LorentzTransform<Reality, T>::velocity() const
+{
+  /** \bug There is surely a better way than this... */
+  Event<Reality, T> const after1{1.0*units::metres, Displacement<T>{}};
+  auto const my_inverse = inverse();
+  auto const before1 = my_inverse.apply(after1);
+  return before1.spatial() / before1.template t_over_c<Reality>();
 }
 
 template<typename Reality, typename T>
