@@ -10,6 +10,7 @@
 #include <fearless/debug.hpp>
 #include <fearless/units/dimensionless.hpp>
 #include <fearless/physics/worldline.hpp>
+#include <fearless/physics/gamma.hpp>
 
 #include "scopedorthographicprojection.hpp"
 #include "scopedbindtexture.hpp"
@@ -22,7 +23,9 @@ Renderer::Renderer(
     TextureSource const& textureSource
   ) :
   galaxy_{starIndex},
-  observer_{physics::RelativeInertialFrame<Reality>(galaxy_.root_frame())},
+  observer_{
+    physics::RelativeInertialFrame<Reality>(galaxy_.root_frame(), "Observer")
+  },
   width_{1},
   height_{1},
   fov_{45*units::degrees},
@@ -73,13 +76,37 @@ void Renderer::display()
     glDisable(GL_POINT_SPRITE);
   }
   {
+    auto const& observerFrame = observer_.frame();
+    auto const& referenceFrame = *observerFrame.relative_to();
+    auto const topTransform =
+      observerFrame.make_transform_from(referenceFrame);
+    physics::Event<Reality, double> const inReferenceFrame =
+      topTransform.translation();
+    physics::Velocity<double> const velocity =
+      topTransform.lorentz().velocity();
+    double const gamma = physics::gamma<Reality>(velocity);
     ScopedOrthographicProjection p(width_, height_);
     glLoadIdentity();
     glColor3f(1, 1, 1);
     BitmapString(
         BitmapString::Font::Helvetica, 12,
-        (boost::format("Fearless Explorer\n%d fps") %
-          frame_times_.size()).str()
+        (boost::format(
+            "Fearless Explorer\n"
+            "Reference frame: %s\n"
+            "Position: %s\n"
+            "Time: %s\n"
+            "Velocity: %s\n"
+            "Gamma: %f\n"
+            "Traveller's time: %s\n"
+            "%d fps") %
+            referenceFrame.name() %
+            inReferenceFrame.spatial() %
+            inReferenceFrame.t_over_c<Reality>() %
+            velocity %
+            gamma %
+            observer_.travellers_time() %
+            frame_times_.size()
+        ).str()
       ).render_top_left(5, 5);
   }
   glutSwapBuffers();
