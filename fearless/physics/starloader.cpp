@@ -84,6 +84,8 @@ namespace {
 
 void StarLoader::load_celestia_txt(std::istream& in)
 {
+  reference_frame_ = "J2000 Ecliptic";
+
   std::string line;
   if (!std::getline(in, line)) {
     FEARLESS_FATAL("error reading celestia txt file: no count");

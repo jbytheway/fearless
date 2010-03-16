@@ -21,6 +21,7 @@ class FEARLESS_PHYSICS_API StarIndex : boost::noncopyable {
     explicit StarIndex(StarLoader const&);
     ~StarIndex();
 
+    std::string reference_frame() const;
     void apply_to_stars(boost::function<void(Star const&)> const&) const;
     void dump(std::ostream&) const;
   private:

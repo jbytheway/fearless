@@ -37,8 +37,10 @@ class FEARLESS_PHYSICS_API StarLoader {
         SpectralType const&
       );
 
+    std::string reference_frame() const { return reference_frame_; }
     std::vector<Star> const& stars() const { return stars_; }
   private:
+    std::string reference_frame_;
     std::vector<Star> stars_;
 };
 
