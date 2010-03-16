@@ -3,9 +3,11 @@
 
 #include <boost/tuple/tuple.hpp>
 
+#include <fearless/maths/api.hpp>
+
 namespace fearless { namespace maths {
 
-boost::tuple<double,double> solve_quadratic(
+FEARLESS_MATHS_API boost::tuple<double,double> solve_quadratic(
     const double a,
     const double b,
     const double c

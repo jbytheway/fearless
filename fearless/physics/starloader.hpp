@@ -3,6 +3,7 @@
 
 #include <iosfwd>
 
+#include <fearless/physics/api.hpp>
 #include <fearless/physics/cataloguenumber.hpp>
 #include <fearless/physics/equatorialcoordinates.hpp>
 #include <fearless/physics/spectraltype.hpp>
@@ -19,7 +20,7 @@ namespace fearless { namespace physics {
  * Heavily inspired by the Celectia class StarDatabase (which is Copyright
  * (C) 2001-2008, Chris Laurel <claurel@shatters.net>).
  */
-class StarLoader {
+class FEARLESS_PHYSICS_API StarLoader {
   public:
     void load_celestia_txt(std::istream&);
     void add_star(

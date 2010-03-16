@@ -4,9 +4,11 @@
 #include <cstdlib>
 #include <ostream>
 
+#include <fearless/api.hpp>
+
 namespace fearless {
 
-extern std::ostream& error_stream;
+extern FEARLESS_API std::ostream& error_stream;
 
 }
 

@@ -2,13 +2,15 @@
 #define FEARLESS_MATHS__VERY_NEAR_TO_HPP
 
 #include <boost/units/quantity.hpp>
+#include <fearless/maths/api.hpp>
 
 namespace fearless { namespace maths {
 
 // Note that other implementations of very_near_to may be found by ADL, e.g.
 // for ThreeVector; see corresponding headers
 
-bool very_near_to(double const x, double const y, double const tolerance);
+FEARLESS_MATHS_API bool
+very_near_to(double const x, double const y, double const tolerance);
 
 template<typename Unit, typename T>
 inline bool very_near_to(

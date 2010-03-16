@@ -4,11 +4,13 @@
 #include <memory>
 #include <vector>
 
+#include <fearless/physics/api.hpp>
+
 namespace fearless { namespace physics {
 
 class Orbiting;
 
-class Orbited {
+class FEARLESS_PHYSICS_API Orbited {
   protected:
     Orbited();
     Orbited(Orbited const&) = delete;

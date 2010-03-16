@@ -6,6 +6,8 @@
 
 #include <boost/preprocessor/seq/enum.hpp>
 
+#include <fearless/physics/api.hpp>
+
 namespace fearless { namespace physics {
 
 #define FEARLESS_PHYSICS_SPECTRALCLASS_VALUES() \
@@ -46,7 +48,8 @@ enum class SpectralClass {
   BOOST_PP_SEQ_ENUM(FEARLESS_PHYSICS_SPECTRALCLASS_VALUES())
 };
 
-std::ostream& operator<<(std::ostream&, SpectralClass const);
+FEARLESS_PHYSICS_API std::ostream&
+operator<<(std::ostream&, SpectralClass const);
 
 inline bool operator<(SpectralClass const l, SpectralClass const r) {
   typedef std::make_unsigned<SpectralClass>::type Integer;

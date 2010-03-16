@@ -16,7 +16,7 @@ class StarLoader;
  * Note that a StarIndex is immutable once constructed.  Stars must be added to
  * the StarLoader before it is used to make the StarIndex.
  */
-class StarIndex : boost::noncopyable {
+class FEARLESS_PHYSICS_API StarIndex : boost::noncopyable {
   public:
     explicit StarIndex(StarLoader const&);
     ~StarIndex();

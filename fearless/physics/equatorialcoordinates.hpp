@@ -6,12 +6,13 @@
 #include <fearless/units/quantity.hpp>
 #include <fearless/units/angle.hpp>
 #include <fearless/units/length.hpp>
+#include <fearless/physics/api.hpp>
 #include <fearless/physics/displacement.hpp>
 
 namespace fearless { namespace physics {
 
 template<typename T>
-struct EquatorialCoordinates {
+struct FEARLESS_PHYSICS_API EquatorialCoordinates {
   BOOST_MPL_ASSERT((std::is_floating_point<T>));
 
   EquatorialCoordinates(
