@@ -22,10 +22,20 @@ class Observer {
     make_transform_from(InertialFrame<Reality> const& f) {
       return frame_.make_transform_from(f);
     }
+
+    void advance(units::quantity<units::time, double> time);
   private:
     RelativeInertialFrame<Reality> frame_;
     units::quantity<units::time, double> travellers_time_;
 };
+
+template<typename Reality>
+void Observer<Reality>::advance(units::quantity<units::time, double> time)
+{
+  Event<Reality, double> translation{time, Displacement<double>()};
+  frame_.push(PoincareTransform<Reality, double>(translation));
+  travellers_time_ += time;
+}
 
 }}
 

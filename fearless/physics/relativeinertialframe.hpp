@@ -26,6 +26,10 @@ class RelativeInertialFrame : InertialFrame<Reality> {
 
     virtual PoincareTransform<Reality, double>
     make_transform_from(InertialFrame<Reality> const& f) const;
+
+    void push(PoincareTransform<Reality, double> const& t) {
+      transform_ = t * transform_;
+    }
   private:
     std::shared_ptr<InertialFrame<Reality> const> relative_to_;
     PoincareTransform<Reality, double> transform_;

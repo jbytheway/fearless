@@ -30,7 +30,8 @@ Renderer::Renderer(
   height_{1},
   fov_{45*units::degrees},
   pixel_size_{1*units::degree},
-  star_texture_{textureSource.load_star()}
+  star_texture_{textureSource.load_star()},
+  last_time_{}
 {
 }
 
@@ -42,6 +43,19 @@ void Renderer::display()
   while (frame_times_.front() < time - 1000) {
     frame_times_.pop();
   }
+  units::quantity<units::time, double> timeSinceLastFrame =
+    (time - last_time_)*0.001*units::seconds;
+  last_time_ = time;
+  // Truncate to one second to prevent craziness
+  if (timeSinceLastFrame < 0.0*units::seconds) {
+    FEARLESS_DEBUG("negative time since last frame");
+    timeSinceLastFrame = units::zero;
+  } else if (timeSinceLastFrame > 1.0*units::seconds) {
+    FEARLESS_DEBUG("large time since last frame");
+    timeSinceLastFrame = 1.0*units::seconds;
+  }
+
+  observer_.advance(timeSinceLastFrame);
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   // Turn on blending which just adds up the colour

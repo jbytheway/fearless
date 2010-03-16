@@ -10,6 +10,12 @@ template<typename Reality, typename T>
 class PoincareTransform {
   public:
     PoincareTransform() = default;
+    explicit PoincareTransform(
+        Event<Reality, T> const& translation
+      ) :
+      translation_(translation),
+      lorentz_()
+    {}
     PoincareTransform(
         Event<Reality, T> const& translation,
         LorentzTransform<Reality, T> const& lorentz
