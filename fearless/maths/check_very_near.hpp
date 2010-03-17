@@ -1,6 +1,8 @@
 #ifndef FEARLESS_MATHS__CHECK_VERY_NEAR_HPP
 #define FEARLESS_MATHS__CHECK_VERY_NEAR_HPP
 
+#include <boost/test/test_tools.hpp>
+
 #include <fearless/maths/very_near_to.hpp>
 #include <fearless/maths/standard_tolerance.hpp>
 
