@@ -76,6 +76,8 @@ void GlutMain::go(GlutCallbacks& c)
   glutSpecialFunc(special);
   glutSpecialUpFunc(specialUp);
 
+  // Almost certain to want to ignore key repeats
+  glutIgnoreKeyRepeat(1);
   // This option allows glutMainLoop to return, thus allowing all our
   // destructors to run and not leak memory everywhere
   glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
