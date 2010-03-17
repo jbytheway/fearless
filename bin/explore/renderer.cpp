@@ -33,6 +33,10 @@ Renderer::Renderer(
   star_texture_{textureSource.load_star()},
   last_time_{}
 {
+  key_states_[GLUT_KEY_LEFT] = false;
+  key_states_[GLUT_KEY_RIGHT] = false;
+  key_states_[GLUT_KEY_UP] = false;
+  key_states_[GLUT_KEY_DOWN] = false;
 }
 
 void Renderer::display()
@@ -112,6 +116,7 @@ void Renderer::display()
             "Velocity: %s\n"
             "Gamma: %f\n"
             "Traveller's time: %s\n"
+            "Keys: %s%s\n"
             "%d fps") %
             referenceFrame.name() %
             inReferenceFrame.spatial() %
@@ -119,6 +124,8 @@ void Renderer::display()
             velocity %
             gamma %
             observer_.travellers_time() %
+            ( key_states_[GLUT_KEY_UP] ? "U" : "-" ) %
+            ( key_states_[GLUT_KEY_DOWN] ? "D" : "-" ) %
             frame_times_.size()
         ).str()
       ).render_top_left(5, 5);
@@ -163,6 +170,18 @@ void Renderer::reshape(int width, int height)
       0.0, 0.0,-1.0, /*look at*/
       0.0, 1.0, 0.0  /*up*/
     );
+}
+
+void Renderer::special(int key, int /*x*/, int /*y*/)
+{
+  auto const it = key_states_.find(key);
+  if (it != key_states_.end()) it->second = true;
+}
+
+void Renderer::special_up(int key, int /*x*/, int /*y*/)
+{
+  auto const it = key_states_.find(key);
+  if (it != key_states_.end()) it->second = false;
 }
 
 void Renderer::render_star(

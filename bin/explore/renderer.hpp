@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <queue>
+#include <map>
 
 #include <boost/noncopyable.hpp>
 
@@ -26,6 +27,8 @@ class Renderer : public GlutCallbacks, private boost::noncopyable {
     virtual void display();
     virtual void idle();
     virtual void reshape(int width, int height);
+    virtual void special(int /*key*/, int /*x*/, int /*y*/);
+    virtual void special_up(int /*key*/, int /*x*/, int /*y*/);
   private:
     void render_star(
         physics::PoincareTransform<Reality, double> const& galaxyToObserver,
@@ -35,6 +38,7 @@ class Renderer : public GlutCallbacks, private boost::noncopyable {
 
     physics::Galaxy<Reality> galaxy_;
     physics::Observer<Reality> observer_;
+    std::map<int, bool> key_states_;
     int width_;
     int height_;
     units::quantity<units::degree_angle, float> fov_;

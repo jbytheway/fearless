@@ -25,6 +25,16 @@ namespace {
   {
     callbacks->reshape(w, h);
   }
+
+  void special(int key, int x, int y)
+  {
+    callbacks->special(key, x, y);
+  }
+
+  void specialUp(int key, int x, int y)
+  {
+    callbacks->special_up(key, x, y);
+  }
 }
 
 GlutMain::GlutMain(int* argc, char** argv)
@@ -63,6 +73,8 @@ void GlutMain::go(GlutCallbacks& c)
   glutDisplayFunc(display);
   glutIdleFunc(idle);
   glutReshapeFunc(reshape);
+  glutSpecialFunc(special);
+  glutSpecialUpFunc(specialUp);
 
   // This option allows glutMainLoop to return, thus allowing all our
   // destructors to run and not leak memory everywhere
