@@ -23,11 +23,19 @@ class Observer {
       return frame_.make_transform_from(f);
     }
 
+    void boost(Velocity<double> const&);
     void advance(units::quantity<units::time, double> time);
   private:
     RelativeInertialFrame<Reality> frame_;
     units::quantity<units::time, double> travellers_time_;
 };
+
+template<typename Reality>
+void Observer<Reality>::boost(Velocity<double> const& delta_v)
+{
+  auto lorentz = LorentzTransform<Reality, double>::boost(delta_v);
+  frame_.push(PoincareTransform<Reality, double>(lorentz));
+}
 
 template<typename Reality>
 void Observer<Reality>::advance(units::quantity<units::time, double> time)

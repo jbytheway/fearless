@@ -9,6 +9,7 @@
 
 #include <fearless/debug.hpp>
 #include <fearless/units/dimensionless.hpp>
+#include <fearless/physics/acceleration.hpp>
 #include <fearless/physics/worldline.hpp>
 #include <fearless/physics/gamma.hpp>
 
@@ -59,6 +60,12 @@ void Renderer::display()
     timeSinceLastFrame = 1.0*units::seconds;
   }
 
+  physics::Acceleration<double> const acceleration{
+    key_states_[GLUT_KEY_UP] ?
+      1.0*units::metres_per_second_squared : units::zero,
+    0, 0
+  };
+  observer_.boost(acceleration * timeSinceLastFrame);
   observer_.advance(timeSinceLastFrame);
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
