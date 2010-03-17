@@ -59,8 +59,14 @@ SpecialOrthogonalMatrix<T> SpecialOrthogonalMatrix<T>::rotation_from_to(
   // Original was
   // Copyright (C) 2000-2006, Chris Laurel <claurel@shatters.net>
 
-  assert(v0.norm_squared() == 1);
-  assert(v1.norm_squared() == 1);
+#ifndef NDEBUG
+  if (!maths::very_near_to(v0.norm_squared(), 1, 1e-15)) {
+    FEARLESS_FATAL("not normalized: " << v0);
+  }
+  if (!maths::very_near_to(v1.norm_squared(), 1, 1e-15)) {
+    FEARLESS_FATAL("not normalized: " << v1);
+  }
+#endif
 
   // We need sine and cosine of half the angle between v0 and v1, so
   // compute the vector halfway between v0 and v1. The cross product of
