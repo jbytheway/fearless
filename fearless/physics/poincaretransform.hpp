@@ -16,6 +16,12 @@ class PoincareTransform {
       translation_(translation),
       lorentz_()
     {}
+    explicit PoincareTransform(
+        LorentzTransform<Reality, T> const& lorentz
+      ) :
+      translation_(),
+      lorentz_(lorentz)
+    {}
     PoincareTransform(
         Event<Reality, T> const& translation,
         LorentzTransform<Reality, T> const& lorentz
