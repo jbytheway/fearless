@@ -66,6 +66,7 @@ LorentzTransform<Reality, T>
 LorentzTransform<Reality, T>::boost(Velocity<T> const& v)
 {
   units::quantity<units::velocity, T> const v_norm = v.norm();
+  if (v_norm == 0.0*units::metres_per_second) return LorentzTransform();
   assert(v_norm < Reality::c.quantity());
   ThreeVector<units::quantity<units::dimensionless, T>> const n = v / v_norm;
   ThreeVector<units::quantity<units::dimensionless, T>> const pole(0, 0, 1);

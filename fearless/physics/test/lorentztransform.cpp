@@ -78,6 +78,25 @@ BOOST_AUTO_TEST_CASE(rotation_transforms_sensibly)
   }
 }
 
+BOOST_AUTO_TEST_CASE(boost_of_zero_is_identity)
+{
+  typedef physics::ThreeVector<units::quantity<units::dimensionless, double>>
+    Vector;
+  Vector const e0{1, 0, 0};
+  Vector const e1{0, 1, 0};
+  Vector const e2{0, 0, 1};
+  Ev ev0(0.0*units::seconds, e0*units::metre);
+  Ev ev1(0.0*units::seconds, e1*units::metre);
+  Ev ev2(0.0*units::seconds, e2*units::metre);
+  Ev t(1.0*units::seconds, e0*0.0*units::metre);
+  Velocity<double> stationary{};
+  auto const id = LT::boost(stationary);
+  BOOST_CHECK_EQUAL(id.apply(ev0), ev0);
+  BOOST_CHECK_EQUAL(id.apply(ev1), ev1);
+  BOOST_CHECK_EQUAL(id.apply(ev2), ev2);
+  BOOST_CHECK_EQUAL(id.apply(t), t);
+}
+
 BOOST_AUTO_TEST_CASE(boost_transforms_sensibly_along_path)
 {
   {
