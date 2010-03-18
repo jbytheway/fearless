@@ -3,9 +3,11 @@
 
 #include <ostream>
 
+#include <fearless/api.hpp>
+
 namespace fearless {
 
-extern std::ostream& debug_stream;
+extern FEARLESS_API std::ostream& debug_stream;
 
 }
 
