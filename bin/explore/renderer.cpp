@@ -105,8 +105,10 @@ void Renderer::display()
     auto const& referenceFrame = *observerFrame.relative_to();
     auto const topTransform =
       observerFrame.make_transform_from(referenceFrame);
+    // Position of observer in reference frame is the inverse image of the
+    // origin in the transform
     physics::Event<Reality, double> const inReferenceFrame =
-      topTransform.translation();
+      topTransform.inverse().translation();
     physics::Velocity<double> const velocity =
       topTransform.lorentz().velocity();
     double const gamma = physics::gamma<Reality>(velocity);
