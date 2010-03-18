@@ -9,6 +9,7 @@
 
 #include <fearless/units/quantity.hpp>
 #include <fearless/units/angle.hpp>
+#include <fearless/units/acceleration.hpp>
 #include <fearless/physics/observer.hpp>
 #include <fearless/physics/galaxy.hpp>
 #include <fearless/physics/conventionalreality.hpp>
@@ -46,6 +47,7 @@ class Renderer : public GlutCallbacks, private boost::noncopyable {
     std::unique_ptr<Texture> star_texture_;
     std::queue<int> frame_times_;
     int last_time_;
+    units::quantity<units::acceleration, double> acceleration_;
 };
 
 }}

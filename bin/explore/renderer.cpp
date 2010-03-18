@@ -32,7 +32,8 @@ Renderer::Renderer(
   fov_{45*units::degrees},
   pixel_size_{1*units::degree},
   star_texture_{textureSource.load_star()},
-  last_time_{}
+  last_time_{},
+  acceleration_{Reality::c.quantity() / (10.0*units::second)}
 {
   key_states_[GLUT_KEY_LEFT] = false;
   key_states_[GLUT_KEY_RIGHT] = false;
@@ -61,9 +62,7 @@ void Renderer::display()
   }
 
   physics::Acceleration<double> const acceleration{
-    key_states_[GLUT_KEY_UP] ?
-      1.0*units::metres_per_second_squared : units::zero,
-    0, 0
+    0, 0, key_states_[GLUT_KEY_UP] ? -acceleration_ : units::zero
   };
   observer_.boost(acceleration * timeSinceLastFrame);
   observer_.advance(timeSinceLastFrame);
