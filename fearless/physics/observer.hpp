@@ -40,7 +40,7 @@ void Observer<Reality>::boost(Velocity<double> const& delta_v)
 template<typename Reality>
 void Observer<Reality>::advance(units::quantity<units::time, double> time)
 {
-  Event<Reality, double> translation{time, Displacement<double>()};
+  Event<Reality, double> translation{-time, Displacement<double>()};
   frame_.push(PoincareTransform<Reality, double>(translation));
   travellers_time_ += time;
 }

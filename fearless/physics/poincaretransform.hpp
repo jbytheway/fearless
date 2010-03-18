@@ -33,21 +33,19 @@ class PoincareTransform {
     Event<Reality, T> const& translation() const { return translation_; }
     LorentzTransform<Reality, T> const& lorentz() const { return lorentz_; }
     Event<Reality, T> apply(Event<Reality, T> const& x) const {
-      return lorentz_.apply(x + translation_);
+      return lorentz_.apply(x) + translation_;
     }
 
     PoincareTransform inverse() const {
-      return PoincareTransform(
-          lorentz_.apply(-translation_),
-          lorentz_.inverse()
-        );
+      auto const li = lorentz_.inverse();
+      return PoincareTransform(li.apply(-translation_), li);
     }
 
     friend PoincareTransform
     operator*(PoincareTransform const& l, PoincareTransform const& r) {
       // Transform on left, so this means do r, then l
       return PoincareTransform(
-          l.inverse().apply(r.translation_),
+          l.apply(r.translation_),
           l.lorentz_ * r.lorentz_
         );
     }
