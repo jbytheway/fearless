@@ -226,11 +226,14 @@ void Renderer::render_star(
       ),
       starDirectionInObserverFrame
     );
-  physics::Displacement<float> pos{starWorldline.visible_at().spatial()};
+  /** \todo Using floats instead of doubles below here caused bizarre issues:
+   * stars started to vanish seemingly at random at high speeds.  This should
+   * be investigated at some point. */
+  physics::Displacement<double> pos{starWorldline.visible_at().spatial()};
   assert(isfinite(pos));
-  physics::ThreeVector<units::quantity<units::dimensionless, float>> n_pos =
+  physics::ThreeVector<units::quantity<units::dimensionless, double>> n_pos =
     pos/pos.norm();
-  glVertex3f(n_pos.x(), n_pos.y(), n_pos.z());
+  glVertex3d(n_pos.x(), n_pos.y(), n_pos.z());
 }
 
 }}
