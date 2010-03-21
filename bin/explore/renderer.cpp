@@ -205,6 +205,7 @@ void Renderer::render_star(
       starDirectionInObserverFrame
     );
   physics::Displacement<float> pos{starWorldline.visible_at().spatial()};
+  assert(isfinite(pos));
   physics::ThreeVector<units::quantity<units::dimensionless, float>> n_pos =
     pos/pos.norm();
   glVertex3f(n_pos.x(), n_pos.y(), n_pos.z());
