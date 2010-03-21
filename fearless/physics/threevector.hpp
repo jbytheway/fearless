@@ -160,6 +160,16 @@ dot_product(ThreeVector<Q1> const& l, ThreeVector<Q2> const& r) {
   return l.x()*r.x() + l.y()*r.y() + l.z()*r.z();
 }
 
+/** Check for finiteness */
+template<typename Q>
+inline bool isfinite(ThreeVector<Q> const& x) {
+  using std::isfinite;
+  return
+    isfinite(x.x().value()) &&
+    isfinite(x.y().value()) &&
+    isfinite(x.z().value());
+}
+
 /** ADL-found overload of very_near_to */
 template<typename Q>
 bool very_near_to(
