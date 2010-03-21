@@ -30,6 +30,8 @@ class Renderer : public GlutCallbacks, private boost::noncopyable {
     virtual void reshape(int width, int height);
     virtual void special(int /*key*/, int /*x*/, int /*y*/);
     virtual void special_up(int /*key*/, int /*x*/, int /*y*/);
+    virtual void keyboard(unsigned char /*key*/, int /*x*/, int /*y*/);
+    virtual void keyboard_up(unsigned char /*key*/, int /*x*/, int /*y*/);
   private:
     void render_star(
         physics::PoincareTransform<Reality, double> const& galaxyToObserver,
@@ -37,9 +39,15 @@ class Renderer : public GlutCallbacks, private boost::noncopyable {
         physics::Star const&
       );
 
+    enum class KeyType { ascii, special };
+
+    friend inline bool operator<(Renderer::KeyType l, Renderer::KeyType r) {
+      return int(l) < int(r);
+    }
+
     physics::Galaxy<Reality> galaxy_;
     physics::Observer<Reality> observer_;
-    std::map<int, bool> key_states_;
+    std::map<std::pair<KeyType, int>, bool> key_states_;
     int width_;
     int height_;
     units::quantity<units::degree_angle, float> fov_;

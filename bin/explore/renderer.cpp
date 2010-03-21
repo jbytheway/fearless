@@ -35,10 +35,18 @@ Renderer::Renderer(
   last_time_{},
   acceleration_{Reality::c.quantity() / (10.0*units::second)}
 {
-  key_states_[GLUT_KEY_LEFT] = false;
-  key_states_[GLUT_KEY_RIGHT] = false;
-  key_states_[GLUT_KEY_UP] = false;
-  key_states_[GLUT_KEY_DOWN] = false;
+  int asciiKeys[] = {
+    'z', 'x'
+  };
+  BOOST_FOREACH(int const key, asciiKeys) {
+    key_states_[std::make_pair(KeyType::ascii, key)] = false;
+  }
+  int specialKeys[] = {
+    GLUT_KEY_LEFT, GLUT_KEY_RIGHT, GLUT_KEY_UP, GLUT_KEY_DOWN
+  };
+  BOOST_FOREACH(int const key, specialKeys) {
+    key_states_[std::make_pair(KeyType::special, key)] = false;
+  }
 }
 
 void Renderer::display()
@@ -62,7 +70,9 @@ void Renderer::display()
   }
 
   physics::Acceleration<double> const acceleration{
-    0, 0, key_states_[GLUT_KEY_UP] ? -acceleration_ : units::zero
+    0, 0,
+    key_states_[std::make_pair(KeyType::special, GLUT_KEY_UP)] ?
+      -acceleration_ : units::zero
   };
   observer_.boost(acceleration * timeSinceLastFrame);
   observer_.advance(timeSinceLastFrame);
@@ -70,7 +80,7 @@ void Renderer::display()
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   // Turn on blending which just adds up the colour
   glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+  glBlendFunc(GL_ONE, GL_ONE);
 
   {
     physics::PoincareTransform<Reality, double> galaxyToObserverTransform =
@@ -132,8 +142,8 @@ void Renderer::display()
             velocity %
             gamma %
             observer_.travellers_time() %
-            ( key_states_[GLUT_KEY_UP] ? "U" : "-" ) %
-            ( key_states_[GLUT_KEY_DOWN] ? "D" : "-" ) %
+            ( key_states_[std::make_pair(KeyType::ascii, 'z')] ? "z" : "-" ) %
+            ( key_states_[std::make_pair(KeyType::ascii, 'x')] ? "x" : "-" ) %
             frame_times_.size()
         ).str()
       ).render_top_left(5, 5);
@@ -182,13 +192,25 @@ void Renderer::reshape(int width, int height)
 
 void Renderer::special(int key, int /*x*/, int /*y*/)
 {
-  auto const it = key_states_.find(key);
+  auto const it = key_states_.find(std::make_pair(KeyType::special, key));
   if (it != key_states_.end()) it->second = true;
 }
 
 void Renderer::special_up(int key, int /*x*/, int /*y*/)
 {
-  auto const it = key_states_.find(key);
+  auto const it = key_states_.find(std::make_pair(KeyType::special, key));
+  if (it != key_states_.end()) it->second = false;
+}
+
+void Renderer::keyboard(unsigned char key, int /*x*/, int /*y*/)
+{
+  auto const it = key_states_.find(std::make_pair(KeyType::ascii, key));
+  if (it != key_states_.end()) it->second = true;
+}
+
+void Renderer::keyboard_up(unsigned char key, int /*x*/, int /*y*/)
+{
+  auto const it = key_states_.find(std::make_pair(KeyType::ascii, key));
   if (it != key_states_.end()) it->second = false;
 }
 
