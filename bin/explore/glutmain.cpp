@@ -35,6 +35,16 @@ namespace {
   {
     callbacks->special_up(key, x, y);
   }
+
+  void keyboard(unsigned char key, int x, int y)
+  {
+    callbacks->keyboard(key, x, y);
+  }
+
+  void keyboardUp(unsigned char key, int x, int y)
+  {
+    callbacks->keyboard_up(key, x, y);
+  }
 }
 
 GlutMain::GlutMain(int* argc, char** argv)
@@ -75,6 +85,8 @@ void GlutMain::go(GlutCallbacks& c)
   glutReshapeFunc(reshape);
   glutSpecialFunc(special);
   glutSpecialUpFunc(specialUp);
+  glutKeyboardFunc(keyboard);
+  glutKeyboardUpFunc(keyboardUp);
 
   // Almost certain to want to ignore key repeats
   glutIgnoreKeyRepeat(1);

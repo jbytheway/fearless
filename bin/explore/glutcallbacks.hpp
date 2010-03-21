@@ -10,6 +10,8 @@ class GlutCallbacks {
     virtual void reshape(int width, int height) = 0;
     virtual void special(int /*key*/, int /*x*/, int /*y*/) {}
     virtual void special_up(int /*key*/, int /*x*/, int /*y*/) {}
+    virtual void keyboard(unsigned char /*key*/, int /*x*/, int /*y*/) {}
+    virtual void keyboard_up(unsigned char /*key*/, int /*x*/, int /*y*/) {}
   protected:
     GlutCallbacks() = default;
     GlutCallbacks(GlutCallbacks const&) = default;
