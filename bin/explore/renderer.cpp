@@ -12,6 +12,7 @@
 #include <fearless/physics/acceleration.hpp>
 #include <fearless/physics/worldline.hpp>
 #include <fearless/physics/gamma.hpp>
+#include <fearless/physics/colour_of_temperature.hpp>
 
 #include "scopedorthographicprojection.hpp"
 #include "scopedbindtexture.hpp"
@@ -80,7 +81,7 @@ void Renderer::display()
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   // Turn on blending which just adds up the colour
   glEnable(GL_BLEND);
-  glBlendFunc(GL_ONE, GL_ONE);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
   {
     physics::PoincareTransform<Reality, double> galaxyToObserverTransform =
@@ -99,7 +100,6 @@ void Renderer::display()
     glEnable(GL_POINT_SPRITE);
     glPointSize(4);
     glBegin(GL_POINTS);
-      glColor3f(0.2, 0, 0);
       galaxy_.star_index().apply_to_stars(
           boost::bind(
             &Renderer::render_star, this,
@@ -231,8 +231,16 @@ void Renderer::render_star(
    * be investigated at some point. */
   physics::Displacement<double> pos{starWorldline.visible_at().spatial()};
   assert(isfinite(pos));
+  units::quantity<units::length, double> distance = pos.norm();
   physics::ThreeVector<units::quantity<units::dimensionless, double>> n_pos =
-    pos/pos.norm();
+    pos/distance;
+  /** \bug Colour should depend on redshift */
+  auto const starColour = physics::colour_of_temperature(star.temperature());
+  /** \bug Magnitude should depend on redshift */
+  /*physics::ApparentMagnitude<double> appMag{
+    star.absolute_magnitude(), distance
+  };*/
+  glColor4f(starColour.r(), starColour.g(), starColour.b(), 0.5);
   glVertex3d(n_pos.x(), n_pos.y(), n_pos.z());
 }
 
