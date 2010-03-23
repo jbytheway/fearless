@@ -18,6 +18,17 @@ class Worldline {
       assert(direction_.temporal().value() > 0);
     }
 
+    Worldline(
+        Event<Reality, T> const& pos,
+        ThreeVector<units::quantity<units::velocity, T>> const& v
+      ) :
+      position_{pos},
+      direction_(1.0*units::seconds, v*units::seconds)
+    {
+      assert(direction_.is_timelike());
+      assert(direction_.temporal().value() > 0);
+    }
+
     Event<Reality, T> visible_at() const;
   private:
     Event<Reality, T> position_;

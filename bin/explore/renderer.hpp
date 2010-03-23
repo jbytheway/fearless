@@ -35,7 +35,7 @@ class Renderer : public GlutCallbacks, private boost::noncopyable {
   private:
     void render_star(
         physics::PoincareTransform<Reality, double> const& galaxyToObserver,
-        physics::Event<Reality, double> const& starDirectionInObserverFrame,
+        physics::Velocity<double> const& starVelocityInObserverFrame,
         physics::Star const&
       );
 

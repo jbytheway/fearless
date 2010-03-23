@@ -9,6 +9,7 @@
 
 #include <fearless/debug.hpp>
 #include <fearless/units/dimensionless.hpp>
+#include <fearless/physics/redshift.hpp>
 #include <fearless/physics/acceleration.hpp>
 #include <fearless/physics/worldline.hpp>
 #include <fearless/physics/gamma.hpp>
@@ -89,12 +90,8 @@ void Renderer::display()
     // Because we don't support proper motion of Stars we can pull out the
     // direction bit of the worldline transformation here, rarther than doing
     // iy every time round the loop
-    /** \todo Should this be a FourVelocity? */
-    physics::Event<Reality, double> stationaryInGalaxyFrame(
-        1.0*units::metre, physics::Displacement<double>()
-      );
-    physics::Event<Reality, double> stationaryInObserverFrame =
-      galaxyToObserverTransform.lorentz().apply(stationaryInGalaxyFrame);
+    physics::Velocity<double> starVelocityInObserverFrame =
+      galaxyToObserverTransform.lorentz().inverse().velocity();
     ScopedBindTexture s(*star_texture_);
     glLoadIdentity();
     glEnable(GL_POINT_SPRITE);
@@ -103,7 +100,7 @@ void Renderer::display()
       galaxy_.star_index().apply_to_stars(
           boost::bind(
             &Renderer::render_star, this,
-            galaxyToObserverTransform, stationaryInObserverFrame, _1
+            galaxyToObserverTransform, starVelocityInObserverFrame, _1
           )
         );
     glEnd();
@@ -216,7 +213,7 @@ void Renderer::keyboard_up(unsigned char key, int /*x*/, int /*y*/)
 
 void Renderer::render_star(
     physics::PoincareTransform<Reality, double> const& galaxyToObserver,
-    physics::Event<Reality, double> const& starDirectionInObserverFrame,
+    physics::Velocity<double> const& starVelocityInObserverFrame,
     physics::Star const& star
   )
 {
@@ -224,7 +221,7 @@ void Renderer::render_star(
       galaxyToObserver.apply(
         physics::Event<Reality, double>(0.0*units::metres, star.position())
       ),
-      starDirectionInObserverFrame
+      starVelocityInObserverFrame
     );
   /** \todo Using floats instead of doubles below here caused bizarre issues:
    * stars started to vanish seemingly at random at high speeds.  This should
@@ -234,8 +231,12 @@ void Renderer::render_star(
   units::quantity<units::length, double> distance = pos.norm();
   physics::ThreeVector<units::quantity<units::dimensionless, double>> n_pos =
     pos/distance;
+  physics::Redshift<Reality, float> redshift{
+    starVelocityInObserverFrame.norm(), -pos.z()/distance
+  };
   /** \bug Colour should depend on redshift */
-  auto const starColour = physics::colour_of_temperature(star.temperature());
+  auto const starColour =
+    physics::colour_of_temperature(redshift.apply(star.temperature()));
   /** \bug Magnitude should depend on redshift */
   /*physics::ApparentMagnitude<double> appMag{
     star.absolute_magnitude(), distance
