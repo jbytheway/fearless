@@ -1,0 +1,50 @@
+This project uses makeshift to build.  If the makeshift directory is empty then
+you probably need to run
+
+$ git submodule init
+$ git submodule update
+
+Next you will need some dependencies:
+
+- gcc >= 4.4 (this code uses recently added C++0x features so new gcc really is
+  needed; other compilers are unikely to cope in the near term)
+- boost >= 1.42 (maybe 1.41 will work; if you get spirit errors then you need a
+  newer version).  If your distro splits boost into multiple packages you'll
+  need the general one and Boost.Filesystem.
+- freeglut.  The old non-free GLUT won't do.
+- optimal, my options parsing library.  Read about it at
+  http://github.com/jbytheway/optimal or clone it from
+  git@github.com:jbytheway/optimal.git
+
+You may need to add some things to user.mk, e.g. to get the right g++ version
+or allow it to find optimal if you don't install it (which you shouldn't need
+to.  Here for example is my user.mk:
+
+  CXX = g++-4.4.1
+  BUILD_CPPFLAGS += -I$(top_srcdir)../optimal
+  BUILD_LDFLAGS += -L$(top_srcdir)../optimal/optimal
+
+See makeshift/INSTALL for details of what goes in user.mk.
+
+Then to get a debug version it should be simply
+
+$ make
+
+and you can run a few tests with
+
+$ make test
+
+The debug version will have an abominable framerate with the default data; try
+using the test_data which is much smaller.  e.g.
+
+$ ./bin/explore/explore -d test_data/
+
+If it all works you can build the release version with
+
+$ make release
+
+This will build inside a directory called release.  This should run OK on the
+full data:
+
+$ ./release/bin/explore/explore
+
