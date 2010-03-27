@@ -46,6 +46,13 @@ class ThreeVector {
     }
     quantity norm() const { return quantity(sqrt(norm_squared())); }
 
+    ThreeVector& operator+=(ThreeVector const& r) {
+      std::get<0>(values_) += r.x();
+      std::get<1>(values_) += r.y();
+      std::get<2>(values_) += r.z();
+      return *this;
+    }
+
     ThreeVector& operator*=(value_type r) {
       std::get<0>(values_) *= r;
       std::get<1>(values_) *= r;
