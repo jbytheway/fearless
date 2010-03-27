@@ -6,6 +6,28 @@ travel and observation.
 
 Copyright (C) 2009  John Bytheway <jbytheway at that gmail place>
 
+For building instructions see INSTALL.
+
+Fearless contains the following components:
+
+- fearless
+  A support library which provides the implementation of various pertinent
+  physical things as well as the maths behind them.
+
+- bin/explore
+  A simple interactive interface allowing you to fly around (by default) the
+  nearby stellar neighbourhood at implausible accelerations and speeds.
+
+- data
+  Assorted data used by the programs.
+
+- test_data
+  A simpler version of data to be used with debug versions without crippling
+  their performance as the full data does.
+
+- doc
+  Developer documentation and tools.
+
 
 LICENSE
 -------
