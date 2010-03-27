@@ -1,7 +1,7 @@
 #include <boost/filesystem/fstream.hpp>
 #include <boost/algorithm/string/join.hpp>
 
-#include <optionsparser.h>
+#include <optimal/optionsparser.h>
 
 #include <fearless/physics/starloader.hpp>
 #include <fearless/physics/starindex.hpp>
