@@ -71,10 +71,19 @@ void Renderer::display()
     timeSinceLastFrame = 1.0*units::seconds;
   }
 
-  physics::Acceleration<double> const acceleration{
-    0, 0,
-    key_states_[std::make_pair(KeyType::special, GLUT_KEY_UP)] ?
-      -acceleration_ : units::zero
+  typedef physics::Acceleration<double> Acc;
+  Acc acceleration{};
+  if (key_states_[std::make_pair(KeyType::special, GLUT_KEY_UP)]) {
+    acceleration += Acc(0, 0, -acceleration_);
+  };
+  if (key_states_[std::make_pair(KeyType::special, GLUT_KEY_DOWN)]) {
+    acceleration += Acc(0, 0, acceleration_);
+  };
+  if (key_states_[std::make_pair(KeyType::special, GLUT_KEY_LEFT)]) {
+    acceleration += Acc(-acceleration_, 0, 0);
+  };
+  if (key_states_[std::make_pair(KeyType::special, GLUT_KEY_RIGHT)]) {
+    acceleration += Acc(acceleration_, 0, 0);
   };
   observer_.boost(acceleration * timeSinceLastFrame);
   observer_.advance(timeSinceLastFrame);
