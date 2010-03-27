@@ -10,7 +10,7 @@
 
 namespace fearless { namespace physics {
 
-class Star {
+class FEARLESS_PHYSICS_API Star {
   public:
     Star(
         CatalogueNumber const,

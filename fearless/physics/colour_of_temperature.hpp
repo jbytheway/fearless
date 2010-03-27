@@ -3,11 +3,12 @@
 
 #include <fearless/units/quantity.hpp>
 #include <fearless/units/temperature.hpp>
+#include <fearless/physics/api.hpp>
 #include <fearless/physics/colour.hpp>
 
 namespace fearless { namespace physics {
 
-Colour<float>
+FEARLESS_PHYSICS_API Colour<float>
 colour_of_temperature(units::quantity<units::temperature, float>);
 
 }}
