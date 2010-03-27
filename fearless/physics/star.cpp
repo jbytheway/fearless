@@ -212,7 +212,9 @@ class Star::Impl {
           temp = tempT[subclass];
           break;
         default:
-          FEARLESS_FATAL("unknown spectral class");
+          FEARLESS_FATAL(
+            "unknown spectral class" << spectralType.spectral_class
+          );
       }
 
       return boost::shared_ptr<Impl>(new Impl(temp*units::kelvin));
