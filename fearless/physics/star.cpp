@@ -88,12 +88,11 @@ namespace {
   };
 
   // White dwarf temperatures
-  // (not used yet)
-  /*float tempWD[10] =
+  float tempWD[10] =
   {
     100000.0f, 50400.0f, 25200.0f, 16800.0f, 12600.0f,
     10080.0f, 8400.0f, 7200.0f, 6300.0f, 5600.0f,
-  };*/
+  };
 
 }
 
@@ -211,9 +210,16 @@ class Star::Impl {
         case SpectralClass::T:
           temp = tempT[subclass];
           break;
+        case SpectralClass::D:
+        case SpectralClass::DA:
+        case SpectralClass::DB:
+        case SpectralClass::DC:
+        case SpectralClass::DZ:
+          temp = tempWD[subclass];
+          break;
         default:
           FEARLESS_FATAL(
-            "unknown spectral class" << spectralType.spectral_class
+            "unknown spectral class " << spectralType.spectral_class
           );
       }
 
