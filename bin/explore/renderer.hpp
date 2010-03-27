@@ -9,6 +9,7 @@
 
 #include <fearless/units/quantity.hpp>
 #include <fearless/units/angle.hpp>
+#include <fearless/units/frequency.hpp>
 #include <fearless/units/acceleration.hpp>
 #include <fearless/physics/observer.hpp>
 #include <fearless/physics/galaxy.hpp>
@@ -33,6 +34,7 @@ class Renderer : public GlutCallbacks, private boost::noncopyable {
     virtual void keyboard(unsigned char /*key*/, int /*x*/, int /*y*/);
     virtual void keyboard_up(unsigned char /*key*/, int /*x*/, int /*y*/);
   private:
+    void update_projection();
     void render_star(
         physics::PoincareTransform<Reality, double> const& galaxyToObserver,
         physics::Velocity<double> const& starVelocityInObserverFrame,
@@ -51,6 +53,7 @@ class Renderer : public GlutCallbacks, private boost::noncopyable {
     int width_;
     int height_;
     units::quantity<units::degree_angle, float> fov_;
+    units::quantity<units::frequency, float> fov_change_rate_;
     units::quantity<units::degree_angle, float> pixel_size_;
     std::unique_ptr<Texture> star_texture_;
     std::queue<int> frame_times_;

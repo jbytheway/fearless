@@ -9,6 +9,7 @@
 
 #include <fearless/debug.hpp>
 #include <fearless/units/dimensionless.hpp>
+#include <fearless/maths/clamp.hpp>
 #include <fearless/physics/redshift.hpp>
 #include <fearless/physics/acceleration.hpp>
 #include <fearless/physics/worldline.hpp>
@@ -32,6 +33,7 @@ Renderer::Renderer(
   width_{1},
   height_{1},
   fov_{45*units::degrees},
+  fov_change_rate_{1/units::seconds},
   pixel_size_{1*units::degree},
   star_texture_{textureSource.load_star()},
   last_time_{},
@@ -71,6 +73,21 @@ void Renderer::display()
     timeSinceLastFrame = 1.0*units::seconds;
   }
 
+  // Deal with FOV update
+  decltype(fov_change_rate_) dfov_dt{};
+  if (key_states_[std::make_pair(KeyType::ascii, 'z')]) {
+    dfov_dt += fov_change_rate_;
+  }
+  if (key_states_[std::make_pair(KeyType::ascii, 'x')]) {
+    dfov_dt -= fov_change_rate_;
+  }
+  if (dfov_dt != 0.0*units::hertz) {
+    fov_ *= float(exp(dfov_dt*timeSinceLastFrame));
+    fov_ = maths::clamp(fov_, 1.0f*units::degrees, 120.0f*units::degrees);
+    update_projection();
+  }
+
+  // Deal with observer acceleration
   typedef physics::Acceleration<double> Acc;
   Acc acceleration{};
   if (key_states_[std::make_pair(KeyType::special, GLUT_KEY_UP)]) {
@@ -140,7 +157,7 @@ void Renderer::display()
             "Velocity: %s\n"
             "Gamma: %f\n"
             "Traveller's time: %s\n"
-            "Keys: %s%s\n"
+            "FOV: %s\n"
             "%d fps") %
             referenceFrame.name() %
             inReferenceFrame.spatial() %
@@ -148,8 +165,7 @@ void Renderer::display()
             velocity %
             gamma %
             observer_.travellers_time() %
-            ( key_states_[std::make_pair(KeyType::ascii, 'z')] ? "z" : "-" ) %
-            ( key_states_[std::make_pair(KeyType::ascii, 'x')] ? "x" : "-" ) %
+            fov_ %
             frame_times_.size()
         ).str()
       ).render_top_left(5, 5);
@@ -167,33 +183,7 @@ void Renderer::reshape(int width, int height)
   // Prevent divide by zero
   width_ = std::max(width, 1);
   height_ = std::max(height, 1);
-
-  float ratio = 1.0 * width_ / height_;
-  // Make wider dimension have specified field of view
-  units::quantity<units::degree_angle, float> y_fov =
-    ( ratio > 1 ? fov_/ratio : fov_ );
-  pixel_size_ = y_fov / float(height_);
-
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-
-  // Set the viewport to be the entire window
-  glViewport(0/*left*/, 0/*bottom*/, width_/*right*/, height_/*top*/);
-
-  // Set the correct perspective.
-  gluPerspective(
-      y_fov / units::degree/*fov in y-z plane*/,
-      ratio,
-      0.5/*near clip*/,
-      10/*far clip*/
-    );
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
-  gluLookAt(
-      0.0, 0.0, 0.0, /*position*/
-      0.0, 0.0,-1.0, /*look at*/
-      0.0, 1.0, 0.0  /*up*/
-    );
+  update_projection();
 }
 
 void Renderer::special(int key, int /*x*/, int /*y*/)
@@ -218,6 +208,36 @@ void Renderer::keyboard_up(unsigned char key, int /*x*/, int /*y*/)
 {
   auto const it = key_states_.find(std::make_pair(KeyType::ascii, key));
   if (it != key_states_.end()) it->second = false;
+}
+
+void Renderer::update_projection()
+{
+  float ratio = 1.0 * width_ / height_;
+  // Make wider dimension have specified field of view
+  units::quantity<units::degree_angle, float> y_fov =
+    ( ratio > 1 ? fov_/ratio : fov_ );
+  pixel_size_ = y_fov / float(height_);
+
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+
+  // Set the viewport to be the entire window
+  glViewport(0/*left*/, 0/*bottom*/, width_/*right*/, height_/*top*/);
+
+  // Set the correct perspective.
+  gluPerspective(
+      y_fov / units::degree/*fov in y-z plane*/,
+      ratio,
+      0.1/*near clip*/,
+      10/*far clip*/
+    );
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+  gluLookAt(
+      0.0, 0.0, 0.0, /*position*/
+      0.0, 0.0,-1.0, /*look at*/
+      0.0, 1.0, 0.0  /*up*/
+    );
 }
 
 void Renderer::render_star(
