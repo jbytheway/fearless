@@ -12,6 +12,11 @@ struct zero_t {
 
 static const zero_t zero{};
 
+template<typename Unit, typename Value>
+inline bool operator==(quantity<Unit, Value> const& q, zero_t) {
+  return q.value() == 0.0;
+}
+
 }}
 
 #endif // FEARLESS_UNITS__ZERO_HPP
