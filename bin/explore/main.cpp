@@ -51,9 +51,10 @@ namespace {
     parser.addOption("help", 'h', &results.help);
 
     if (parser.parse(argc, argv)) {
-      std::cerr << "Error(s) parsing options:\n";
-      std::cerr << boost::algorithm::join(parser.getErrors(), "\n") << "\n";
-      usage();
+      std::cerr <<
+        "Error(s) parsing options:\n  " <<
+        boost::algorithm::join(parser.getErrors(), "\n  ") << "\n\n" <<
+        "Try --help for usage instructions.\n";
       exit(EXIT_FAILURE);
     }
 
