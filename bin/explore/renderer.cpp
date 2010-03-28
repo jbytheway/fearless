@@ -257,11 +257,11 @@ void Renderer::render_star(
    * be investigated at some point. */
   physics::Displacement<double> pos{starWorldline.visible_at().spatial()};
   assert(isfinite(pos));
-  units::quantity<units::length, double> distance = pos.norm();
+  units::quantity<units::length, double> const distance = pos.norm();
   physics::ThreeVector<units::quantity<units::dimensionless, double>> n_pos =
     pos/distance;
   physics::Redshift<Reality, float> redshift{
-    starVelocityInObserverFrame.norm(), -pos.z()/distance
+    starVelocityInObserverFrame, pos
   };
   /** \bug Colour should depend on redshift */
   auto const starColour =
