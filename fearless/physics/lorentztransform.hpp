@@ -67,12 +67,12 @@ LorentzTransform<Reality, T>::boost(Velocity<T> const& v)
 {
   units::quantity<units::velocity, T> const v_norm = v.norm();
   if (v_norm == 0.0*units::metres_per_second) return LorentzTransform();
-  assert(v_norm < Reality::c.quantity());
+  assert(v_norm < Reality::c());
   ThreeVector<units::quantity<units::dimensionless, T>> const n = v / v_norm;
   ThreeVector<units::quantity<units::dimensionless, T>> const pole(0, 0, 1);
   auto const rotate_n_to_pole =
     maths::SpecialOrthogonalMatrix<T>::rotation_from_to(n, pole);
-  T const beta = v_norm/Reality::c.quantity();
+  T const beta = v_norm/Reality::c();
   T const scale = sqrt((1-beta) / (1+beta));
   auto const boost_at_pole = Representation::scale_by(scale);
   return rotation(rotate_n_to_pole.inverse()) *

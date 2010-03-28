@@ -20,7 +20,7 @@ class Event : public FourVector<units::quantity<units::length, T>> {
       base_type{std::move(t_c), std::move(v)}
     {}
     Event(units::quantity<units::time, T> t, three_vector v) :
-      base_type{std::move(t)*Reality::c.quantity(), std::move(v)}
+      base_type{std::move(t)*Reality::c(), std::move(v)}
     {}
 };
 

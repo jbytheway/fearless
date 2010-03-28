@@ -37,7 +37,7 @@ Renderer::Renderer(
   pixel_size_{1*units::degree},
   star_texture_{textureSource.load_star()},
   last_time_{},
-  acceleration_{Reality::c.quantity() / (10.0*units::second)}
+  acceleration_{Reality::c() / (10.0*units::second)}
 {
   int asciiKeys[] = {
     'z', 'x'

@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE(boost_transforms_sensibly_along_path)
     // First we do in the z-direction, which is the 'nicest' for the
     // implementation
     Velocity<double> const
-      v{units::zero, units::zero, 0.5*Reality::c.quantity()};
+      v{units::zero, units::zero, 0.5*Reality::c()};
     auto const transform = LorentzTransform<Reality, double>::boost(v);
     /*cout << "transform:\n"; transform.dump(std::cout); cout << endl;*/
     Event<Reality, double> const origin{};
@@ -132,7 +132,7 @@ BOOST_AUTO_TEST_CASE(boost_transforms_sensibly_along_path)
   {
     // Now in the x direction
     Velocity<double> const
-      v{0.5*Reality::c.quantity(), units::zero, units::zero};
+      v{0.5*Reality::c(), units::zero, units::zero};
     auto const transform = LorentzTransform<Reality, double>::boost(v);
     /*cout << "transform:\n"; transform.dump(std::cout); cout << endl;*/
     Event<Reality, double> const origin{};

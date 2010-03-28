@@ -53,7 +53,7 @@ class Redshift {
         z_plus_1_ = 1;
       } else {
         assert(fabs(cos_theta) <= 1.0);
-        z_plus_1_ = 1.0/gamma<Reality>(v)/(1.0-v*cos_theta/Reality::c.quantity());
+        z_plus_1_ = 1.0/gamma<Reality>(v)/(1.0-v*cos_theta/Reality::c());
       }
     }
 

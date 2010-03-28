@@ -15,7 +15,7 @@ typedef Redshift<Reality, double> RS;
 BOOST_AUTO_TEST_CASE(redshift_smoke_test)
 {
   typedef units::quantity<units::velocity, double> Vel;
-  Vel fast = Reality::c.quantity()/2.0;
+  Vel fast = Reality::c()/2.0;
   units::quantity<units::temperature, double> temp = 1.0*units::kelvin;
 
   // Moving directly towards yields blueshift

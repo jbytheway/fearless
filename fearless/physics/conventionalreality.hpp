@@ -10,15 +10,9 @@ namespace fearless { namespace physics {
 
 class ConventionalReality {
   public:
-    struct c_t {
-      operator units::quantity<units::velocity, double>() const {
-        return boost::units::si::constants::codata::c;
-      }
-      units::quantity<units::velocity, double> quantity() const {
-        return boost::units::si::constants::codata::c;
-      }
-    };
-    static c_t const c;
+    static units::quantity<units::velocity, double> c() {
+      return boost::units::si::constants::codata::c;
+    }
 };
 
 }}

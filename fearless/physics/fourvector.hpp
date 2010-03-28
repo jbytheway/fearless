@@ -31,7 +31,7 @@ class FourVector {
     quantity const& t() const { return temporal_; }
     template<typename Reality>
     quantity_over_velocity t_over_c() const {
-      return temporal_/Reality::c.quantity();
+      return temporal_/Reality::c();
     }
     three_vector const& spatial() const { return spatial_; }
     quantity const& x() const { return spatial_.x(); }
