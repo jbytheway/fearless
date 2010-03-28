@@ -12,9 +12,11 @@
 namespace {
 
   struct Options {
-    Options()
+    Options() :
+      help{}
     {}
 
+    bool help;
     boost::filesystem::path data;
   };
 
@@ -38,6 +40,7 @@ namespace {
     optimal::OptionsParser parser;
     Options results;
     parser.addOption("data", 'd', &results.data);
+    parser.addOption("help", 'h', &results.help);
 
     if (parser.parse(argc, argv)) {
       std::cerr << "Error(s) parsing options:\n";
@@ -55,6 +58,11 @@ int main(int argc, char** argv)
 {
   fearless::explore::GlutMain m(&argc, argv);
   Options options = get_options(argc, argv);
+
+  if (options.help) {
+    usage();
+    return EXIT_SUCCESS;
+  }
 
   boost::filesystem::path dataPath = options.data;
 
