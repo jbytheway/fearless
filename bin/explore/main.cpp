@@ -23,15 +23,23 @@ namespace {
   void usage()
   {
     std::cout <<
-"explorer is a free relativistic space simulator\n"
+"Explorer is a free relativistic space simulator\n"
+"\n"
+"Command line options:\n"
 "\n"
 " -d, --data PATH  Use PATH as data directory.  Default is to search for a\n"
 "                  directory named 'data' in the executable's directory or\n"
 "                  any parent thereof.\n"
+" -h, --help       Display this message.\n"
 "\n"
-"explorer also accepts many standard X options, such as -display and\n"
-"-geometry.  See the glut documentation for details, for example at\n"
-"http://www.opengl.org/documentation/specs/glut/spec3/node10.html"
+" Explorer also accepts many standard X options, such as -display and\n"
+" -geometry.  See the glut documentation for details, for example at\n"
+" http://www.opengl.org/documentation/specs/glut/spec3/node10.html\n"
+"\n"
+"Controls:\n"
+"\n"
+" Arrow keys  Accelerate in various directions at c/10s.\n"
+" z,x         Increase or decrease FOV.\n"
 << std::endl;
   }
 
