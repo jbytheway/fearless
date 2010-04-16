@@ -65,7 +65,9 @@ namespace {
 
 int main(int argc, char** argv)
 {
+  auto cwd = boost::filesystem::initial_path();
   fearless::explore::GlutMain m(&argc, argv);
+
   Options options = get_options(argc, argv);
 
   if (options.help) {
@@ -77,6 +79,10 @@ int main(int argc, char** argv)
 
   if (dataPath.empty()) {
     boost::filesystem::path exe(argv[0]);
+    if (!exe.has_root_path()) {
+      /** \bug Searches too many directories when exe contains '..' members */
+      exe = cwd/exe;
+    }
     boost::filesystem::path exePath = exe.parent_path();
     while (!(exePath.empty() || boost::filesystem::exists(exePath/"data"))) {
       exePath = exePath.parent_path();
