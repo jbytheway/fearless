@@ -59,6 +59,9 @@ class Renderer : public GlutCallbacks, private boost::noncopyable {
     std::queue<int> frame_times_;
     int last_time_;
     units::quantity<units::acceleration, double> acceleration_;
+    double faintest_magnitude_;
+    double magnitude_scale_;
+    double alpha_offset_;
 };
 
 }}

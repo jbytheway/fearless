@@ -5,6 +5,7 @@
 #include <fearless/physics/gamma.hpp>
 #include <fearless/physics/velocity.hpp>
 #include <fearless/physics/displacement.hpp>
+#include <fearless/physics/absolutemagnitude.hpp>
 
 namespace fearless { namespace physics {
 
@@ -42,6 +43,16 @@ class Redshift {
     units::quantity<units::temperature, T>
     apply(units::quantity<units::temperature, T> const t) const {
       return t*z_plus_1_;
+    }
+
+    template<typename U>
+    AbsoluteMagnitude<U>
+    apply(AbsoluteMagnitude<U> const mag) const {
+      // Intensities should be multiplied by z_plus_1_^4.  Magnitudes live in
+      // -2.5*log10 space, so we add instead.  Nega
+      return AbsoluteMagnitude<U>::from_value(
+        mag.value() + 4*-2.5*log10(z_plus_1_)
+      );
     }
   private:
     template<typename U, typename V>

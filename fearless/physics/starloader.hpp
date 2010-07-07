@@ -29,12 +29,14 @@ class FEARLESS_PHYSICS_API StarLoader {
     void add_star(
         CatalogueNumber const,
         EquatorialCoordinates<double> const&,
-        SpectralType const&
+        SpectralType const&,
+        AbsoluteMagnitude<double> const&
       );
     void add_star(
         CatalogueNumber const,
         Displacement<double> const&,
-        SpectralType const&
+        SpectralType const&,
+        AbsoluteMagnitude<double> const&
       );
 
     std::string reference_frame() const { return reference_frame_; }

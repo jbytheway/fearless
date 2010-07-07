@@ -17,9 +17,10 @@
 #include <fearless/units/quantity.hpp>
 #include <fearless/units/angle.hpp>
 #include <fearless/units/length.hpp>
-#include <fearless/units/magnitude.hpp>
 #include <fearless/units/quantitygrammar.hpp>
 #include <fearless/physics/spectraltypegrammar.hpp>
+#include <fearless/physics/absolutemagnitude.ipp>
+#include <fearless/physics/apparentmagnitude.hpp>
 
 namespace fearless { namespace physics {
 
@@ -33,7 +34,7 @@ namespace {
     units::quantity<units::radian_angle, double> right_ascension;
     units::quantity<units::radian_angle, double> declination;
     units::quantity<units::length, double> distance;
-    units::quantity<units::magnitude, double> apparent_magnitude;
+    ApparentMagnitude<double> apparent_magnitude;
     SpectralType spectral_type;
   };
 
@@ -61,9 +62,14 @@ namespace {
     CelestiaTxtStarDataGrammar() :
       CelestiaTxtStarDataGrammar::base_type(start),
       degreeParser(units::degrees),
-      lightYearParser(units::light_years),
-      magnitudeParser(units::magnitudes)
+      lightYearParser(units::light_years)
     {
+      namespace px = boost::phoenix;
+      /** \todo ApparentMagnitude is supposed to be bolometric.  Are the
+       * Hipparcos catalogue numbers? */
+      magnitudeParser = qi::double_[
+        qi::_val = px::bind(&ApparentMagnitude<double>::from_value, qi::_1)
+      ];
       start %= catalogueNumberParser >> qi::omit[*spirit::ascii::space] >>
         degreeParser >> qi::omit[spirit::ascii::space] >>
         degreeParser >> qi::omit[spirit::ascii::space] >>
@@ -72,10 +78,10 @@ namespace {
         spectralTypeParser;
     }
 
+    qi::uint_parser<CatalogueNumber, 10, 1, -1> catalogueNumberParser;
     units::QuantityGrammar<Iterator, units::radian_angle> degreeParser;
     units::QuantityGrammar<Iterator, units::length> lightYearParser;
-    units::QuantityGrammar<Iterator, units::magnitude> magnitudeParser;
-    qi::uint_parser<CatalogueNumber, 10, 1, -1> catalogueNumberParser;
+    qi::rule<Iterator, ApparentMagnitude<double>()> magnitudeParser;
     SpectralTypeGrammar<Iterator> spectralTypeParser;
     qi::rule<Iterator, CelestiaTxtStarData()> start;
   };
@@ -139,7 +145,11 @@ void StarLoader::load_celestia_txt(std::istream& in)
         EquatorialCoordinates<double>(
           starData.right_ascension, starData.declination, starData.distance
         ),
-        starData.spectral_type
+        starData.spectral_type,
+        AbsoluteMagnitude<double>(
+          starData.apparent_magnitude,
+          units::quantity<units::parsec_length, double>(starData.distance)
+        )
       );
   }
 }
@@ -156,20 +166,22 @@ void StarLoader::load_celestia_txt(boost::filesystem::path const& path)
 void StarLoader::add_star(
     CatalogueNumber const num,
     EquatorialCoordinates<double> const& coords,
-    SpectralType const& spectralType
+    SpectralType const& spectralType,
+    AbsoluteMagnitude<double> const& absoluteMagnitude
   )
 {
   Displacement<double> const position = coords.to_celestial_cartesian();
-  add_star(num, position, spectralType);
+  add_star(num, position, spectralType, absoluteMagnitude);
 }
 
 void StarLoader::add_star(
     CatalogueNumber const num,
     Displacement<double> const& position,
-    SpectralType const& spectralType
+    SpectralType const& spectralType,
+    AbsoluteMagnitude<double> const& absoluteMagnitude
   )
 {
-  stars_.push_back(Star(num, position, spectralType));
+  stars_.push_back(Star(num, position, spectralType, absoluteMagnitude));
 }
 
 }}

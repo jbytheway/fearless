@@ -15,6 +15,7 @@
 #include <fearless/physics/worldline.hpp>
 #include <fearless/physics/gamma.hpp>
 #include <fearless/physics/colour_of_temperature.hpp>
+#include <fearless/physics/apparentmagnitude.ipp>
 
 #include "scopedorthographicprojection.hpp"
 #include "scopedbindtexture.hpp"
@@ -37,7 +38,10 @@ Renderer::Renderer(
   pixel_size_{1*units::degree},
   star_texture_{textureSource.load_star()},
   last_time_{},
-  acceleration_{Reality::c() / (10.0*units::second)}
+  acceleration_{Reality::c() / (10.0*units::second)},
+  faintest_magnitude_{10},
+  magnitude_scale_{0.1},
+  alpha_offset_{0}
 {
   int asciiKeys[] = {
     'z', 'x'
@@ -263,14 +267,23 @@ void Renderer::render_star(
   physics::Redshift<Reality, float> redshift{
     starVelocityInObserverFrame, pos
   };
-  /** \bug Colour should depend on redshift */
+  auto const shiftedTemperature = redshift.apply(star.temperature());
   auto const starColour =
-    physics::colour_of_temperature(redshift.apply(star.temperature()));
-  /** \bug Magnitude should depend on redshift */
-  /*physics::ApparentMagnitude<double> appMag{
-    star.absolute_magnitude(), distance
-  };*/
-  glColor4f(starColour.r(), starColour.g(), starColour.b(), 0.5);
+    physics::colour_of_temperature(shiftedTemperature);
+  auto const shiftedMagnitude = redshift.apply(star.absolute_magnitude());
+  physics::ApparentMagnitude<double> appMag(
+    shiftedMagnitude, units::quantity<units::parsec_length>(distance)
+  );
+  // You might think we should exponentiate the magnitude to make an intensity,
+  // but typical nonlinear monitor response means you actually get better
+  // results by not doing so.
+  /** \bug We have a *bolometric* magnitude; i.e. the total EM; we need to
+   * restrict to just the visible spectrum according to the temperature */
+  double const pixelIntensity =
+    (faintest_magnitude_ - appMag.value()) * magnitude_scale_ + alpha_offset_;
+  /** \bug What if pixelIntensity is bigger than 1? Need to have a flare or
+   * some such. */
+  glColor4f(starColour.r(), starColour.g(), starColour.b(), pixelIntensity);
   glVertex3d(n_pos.x(), n_pos.y(), n_pos.z());
 }
 

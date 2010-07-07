@@ -242,10 +242,12 @@ Star::Impl::flyweights_;
 Star::Star(
     CatalogueNumber const num,
     Displacement<double> const& position,
-    SpectralType const& spectralType
+    SpectralType const& spectralType,
+    AbsoluteMagnitude<double> const& mag
   ) :
   catalogue_number_(num),
   position_(position),
+  absolute_magnitude_(mag),
   impl_(Impl::get(spectralType))
 {}
 
