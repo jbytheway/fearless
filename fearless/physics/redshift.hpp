@@ -49,7 +49,7 @@ class Redshift {
     AbsoluteMagnitude<U>
     apply(AbsoluteMagnitude<U> const mag) const {
       // Intensities should be multiplied by z_plus_1_^4.  Magnitudes live in
-      // -2.5*log10 space, so we add instead.  Nega
+      // -2.5*log10 space, so we add instead.
       return AbsoluteMagnitude<U>::from_value(
         mag.value() + 4*-2.5*log10(z_plus_1_)
       );
