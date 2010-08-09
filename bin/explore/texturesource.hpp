@@ -3,7 +3,7 @@
 
 #include <boost/filesystem/path.hpp>
 
-#include "texture.hpp"
+#include <cagoul/texture.hpp>
 
 namespace fearless { namespace explore {
 
@@ -11,7 +11,10 @@ class TextureSource {
   public:
     TextureSource(boost::filesystem::path const& dataRoot);
 
-    std::unique_ptr<Texture> load_star() const;
+    std::unique_ptr<cagoul::texture>
+    load_from_file(boost::filesystem::path const&) const;
+
+    std::unique_ptr<cagoul::texture> load_star() const;
   private:
     boost::filesystem::path data_root_;
 };

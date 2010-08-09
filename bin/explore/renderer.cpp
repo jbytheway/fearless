@@ -7,6 +7,8 @@
 
 #include <GL/glut.h>
 
+#include <cagoul/scoped/bindtexture.hpp>
+
 #include <fearless/debug.hpp>
 #include <fearless/units/dimensionless.hpp>
 #include <fearless/maths/clamp.hpp>
@@ -18,7 +20,6 @@
 #include <fearless/physics/apparentmagnitude.ipp>
 
 #include "scopedorthographicprojection.hpp"
-#include "scopedbindtexture.hpp"
 #include "bitmapstring.hpp"
 
 namespace fearless { namespace explore {
@@ -122,7 +123,7 @@ void Renderer::display()
     // iy every time round the loop
     physics::Velocity<double> starVelocityInObserverFrame =
       galaxyToObserverTransform.lorentz().inverse().velocity();
-    ScopedBindTexture s(*star_texture_);
+    cagoul::scoped::BindTexture s(*star_texture_);
     glLoadIdentity();
     glEnable(GL_POINT_SPRITE);
     glPointSize(4);

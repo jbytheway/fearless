@@ -1,3 +1,4 @@
 BIN := explore
 LIB_DEP_NAMES := fearless fearless-physics fearless-maths
-LIBS := -loptimal -lboost_filesystem -lglut -lGLU
+LIBS := -loptimal -lboost_filesystem -lcagoul -lglut -lGLU -lpng
+
