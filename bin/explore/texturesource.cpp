@@ -36,6 +36,8 @@ std::unique_ptr<cagoul::texture> TextureSource::load_from_file(
     new cagoul::texture(cagoul::enums::BindTextureTarget::TEXTURE_2D)
   );
   cagoul::scoped::BindTexture s(*result);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   cagoul::TexImage2D(
     cagoul::enums::TexImage2DTarget::TEXTURE_2D,
     0,
