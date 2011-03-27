@@ -28,7 +28,7 @@ std::unique_ptr<cagoul::texture> TextureSource::load_from_file(
   auto ext = file.extension();
   boost::gil::gray8_image_t image;
   if (ext == ".png") {
-    boost::gil::png_read_image(file.file_string(), image);
+    boost::gil::png_read_image(file.string(), image);
   } else {
     FEARLESS_FATAL("unsupported file type");
   }

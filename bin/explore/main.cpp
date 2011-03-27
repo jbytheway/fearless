@@ -1,4 +1,5 @@
 #include <boost/filesystem/fstream.hpp>
+#include <boost/filesystem/operations.hpp>
 #include <boost/algorithm/string/join.hpp>
 
 #include <optimal/optionsparser.hpp>
@@ -65,7 +66,7 @@ namespace {
 
 int main(int argc, char** argv)
 {
-  auto cwd = boost::filesystem::initial_path();
+  auto cwd = boost::filesystem::current_path();
   fearless::explore::GlutMain m(&argc, argv);
 
   Options options = get_options(argc, argv);
